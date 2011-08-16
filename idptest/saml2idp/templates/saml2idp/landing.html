@@ -1,6 +1,0 @@
-{% extends "saml2idp/base.html" %}
-
-{% block content %}
-{{ token }}<br />
-You need to <a href="{% url saml2_idp_login_continue %}">login</a>.
-{% endblock %}

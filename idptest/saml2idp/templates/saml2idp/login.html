@@ -5,9 +5,9 @@
 You are now signed in at the Identity Provider.
 Click Continue to return to the Service Point.
 </div>
-<form method="post" action="{{ saml_request.assertionConsumerServiceURL }}">
+<form method="post" action="{{ acs_url }}">
    <input type="hidden" name="RelayState" value="{{ relay_state }}" />
-   <input type="hidden" name="SAMLResponse" value="{{ saml_response.exportToBase64 }}" />
+   <input type="hidden" name="SAMLResponse" value="{{ saml_response }}" />
    <input type="submit" value="Continue" />
  </form>
  {% endblock content %}

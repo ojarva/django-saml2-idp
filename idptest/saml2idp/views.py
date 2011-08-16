@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
 import codex
 import saml2idp_settings
 import validation
-import xml_signing
+import xml_parse
 import xml_render
 
 def get_random_id():
@@ -21,7 +21,7 @@ def get_time_string(delta=0):
 @login_required
 @csrf_view_exempt
 @csrf_response_exempt
-def landing(request):
+def login(request):
     """
     Receives a SAML 2.0 AuthnRequest from a Service Point and
     presents a SAML 2.0 Assertion for POSTing back to the Service Point.
@@ -29,50 +29,35 @@ def landing(request):
     # Receive the AuthnRequest.
     if request.method == 'POST':
         msg = request.POST['SAMLRequest']
-        rstate = request.POST['RelayState']
+        relay_state = request.POST['RelayState']
     else:
         msg = request.GET['SAMLRequest']
-        rstate = request.GET['RelayState']
+        relay_state = request.GET['RelayState']
 
+    # Read the request.
     xml = codex.decode_base64_and_inflate(msg)
-    req = lasso.Samlp2AuthnRequest()
-    req.initFromXml(xml)
-
-    validation.validate_request(req)
+    request_params = xml_parse.parse_request(xml)
+    validation.validate_request(request_params)
 
     # Build the assertion.
-    assertion = lasso.Saml2Assertion()
-    assertion.iD = get_random_id()
-    assertion.issueInstant = get_time_string()
-    issuer = lasso.Saml2NameID()
-    issuer.content = saml2idp_settings.SAML2IDP_ISSUER
-    assertion.issuer = issuer
-    assertion.version = "2.0"
-
-    # Build the assertion subject.
-    subject = lasso.Saml2Subject()
-    name_id = lasso.Saml2NameID()
-    name_id.sPNameQualifier = req.issuer.content
-    name_id.format = 'urn:oasis:names:tc:SAML:2.0:nameid-format:email'
-    name_id.content = "someone@example.net"
-    subject.name_id = [name_id]
-
-    assertion.subject = subject
-
-    # Build the response that wraps it.
-    resp = lasso.Samlp2Response()
-    resp.assertion = [assertion]
+    params = {
+        'ISSUER': saml2idp_settings.SAML2IDP_ISSUER,
+    }
+    params.update(request_params)
+    params = {
+        'ASSERTION_ID': get_random_id(),
+        'ISSUE_INSTANT': get_time_string(),
+        'SP_NAME_QUALIFIER': '', #XXX
+        'SUBJECT_EMAIL': '',
+    }
 
     # Present sent the Assertion. (Because Django has already enforced login.)
     tv = {
-        'saml_request': req,
-        'saml_response': resp,
-        'relay_state': rstate,
+        'acs_url': params['ACS_URL'],
+        'saml_response': response_xml.encode('base64'),
+        'relay_state': relay_state,
     }
-    return render_to_response('saml2idp/logged_in.html', tv)
-
-def logged_in(request):
-    pass
+    return render_to_response('saml2idp/login.html', tv)
 
 @csrf_view_exempt
 def logout(request):
