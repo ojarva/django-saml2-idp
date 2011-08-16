@@ -8,42 +8,10 @@ import string
 import M2Crypto
 # this app:
 import saml2idp_settings
+from xml_templates import SIGNED_INFO, SIGNATURE
 # until we yank the old stuff entirely:
 from signing_old import *
 
-# NOTE #1: OK, encoding XML into python is not optimal.
-#   However, this is the easiest way to get canonical XML...
-#   ...at least, without requiring other XML-munging libraries.
-#   I'm not including the indentation in the XML itself, because that messes
-#   with its canonicalization. This is meant to produce one long one-liner.
-#   I am indenting each line in python, for my own happiness. :)
-# NOTE #2: I'm using string.Template, rather than Django Templates, to avoid
-#   the overhead of loading Django's template code. (KISS, baby.)
-SIGNED_INFO = (
-    '<ds:SignedInfo>'
-        '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></ds:CanonicalizationMethod>'
-        '<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></ds:SignatureMethod>'
-        '<ds:Reference URI="#${REFERENCE_URI}">'
-            '<ds:Transforms>'
-                '<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"></ds:Transform>'
-                '<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></ds:Transform>'
-            '</ds:Transforms>'
-            '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>'
-            '<ds:DigestValue>${SUBJECT_DIGEST}</ds:DigestValue>'
-        '</ds:Reference>'
-    '</ds:SignedInfo>'
-)
-SIGNATURE = (
-    '<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">'
-        '${SIGNED_INFO}'
-    '<ds:SignatureValue>${RSA_SIGNATURE}</ds:SignatureValue>'
-    '<ds:KeyInfo>'
-        '<ds:X509Data>'
-            '<ds:X509Certificate>${CERTIFICATE}</ds:X509Certificate>'
-        '</ds:X509Data>'
-    '</ds:KeyInfo>'
-'</ds:Signature>'
-)
 
 def _nice(src):
     """ Returns src formatted nicely for our XML. """
