@@ -1,11 +1,9 @@
 from django.conf.urls.defaults import *
-from views import sso_handle_incoming_post_request, sso_post_response, sso_post_response_preview
-# For testing SAML output:
-#from views import saml_assert
+from views import landing, logged_in, logout, logged_out
 
 urlpatterns = patterns('',
-#   ('^saml/assert/$',  saml_assert),
-   ('^sso/post/request/$', sso_handle_incoming_post_request),
-   ('^sso/post/response/$', sso_post_response),
-   ('^sso/post/response/preview/$', sso_post_response_preview),
+   url( r'^login/$', landing, name="saml2_idp_landing"),
+   url('^login/continue/$', logged_in, name="saml2_idp_login_continue"),
+   url('^logout/$', logout, name="saml2_idp_logout"),
+   url('^logged_out/$', logged_in, name="saml2_idp_logged_out"),
 )

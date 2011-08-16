@@ -22,3 +22,8 @@ try:
     SP_RESPONSE_URL = settings.SP_RESPONSE_URL
 except:
     SP_RESPONSE_URL = 'http://127.0.0.1:9000/sp/sso/post/response/'
+
+try:
+    SAML2IDP_ISSUER = settings.SAML2IDP_ISSUER
+except:
+    SAML2IDP_ISSUER = 'http://127.0.0.1:8000'
