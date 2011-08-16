@@ -44,7 +44,7 @@ ASSERTION = (
             'IssueInstant="${ISSUE_INSTANT}" '
             'Version="2.0">'
         '<saml:Issuer>${ISSUER}</saml:Issuer>'
-        '${SIGNATURE}'
+        '${ASSERTION_SIGNATURE}'
         '<saml:Subject>'
             '<saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:email" SPNameQualifier="${SP_NAME_QUALIFIER}">'
             '${SUBJECT_EMAIL}'

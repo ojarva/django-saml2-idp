@@ -4,11 +4,12 @@ import time
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
-import lasso
 # saml2idp app imports:
 import codex
 import saml2idp_settings
 import validation
+import signing
+import xml
 
 def get_random_id():
     #TODO: Make this work.

@@ -14,13 +14,13 @@ REQUEST_PARAMS = {
 
 ASSERTION_PARAMS = {
     'ASSERTION_ID': '_7ccdda8bc6b328570c03b218d7521772998da45374',
+    'ASSERTION_SIGNATURE': '', # it's unsigned
     'AUDIENCE': 'example.net',
     'AUTH_INSTANT': '2011-08-11T23:38:34Z',
     'ISSUE_INSTANT': '2011-08-11T23:38:34Z',
     'NOT_BEFORE': '2011-08-11T23:38:04Z',
     'NOT_ON_OR_AFTER': '2011-08-11T23:43:34Z',
     'SESSION_NOT_ON_OR_AFTER': '2011-08-12T07:38:34Z',
-    'SIGNATURE': '', # it's unsigned
     'SP_NAME_QUALIFIER': 'example.net',
     'SUBJECT_EMAIL': 'randomuser@example.com',
 }
@@ -72,7 +72,7 @@ class TestAssertion(XmlTest):
         params.update(REQUEST_PARAMS)
         params.update(ASSERTION_PARAMS)
         signature = get_signature_xml(ASSERTION_XML, '_7ccdda8bc6b328570c03b218d7521772998da45374')
-        params['SIGNATURE'] = signature
+        params['ASSERTION_SIGNATURE'] = signature
         self._test_template(ASSERTION, params, SIGNED_ASSERTION_XML)
 
 class TestResponse(XmlTest):
@@ -95,7 +95,7 @@ class TestResponse(XmlTest):
         self._test_template(RESPONSE, params, RESPONSE_WITH_SIGNED_ASSERTION_XML)
 
     def test_signed_response_with_signed_assertion(self):
-        # This test also verifies that the template isn't bad.
+        # This test verifies that the response got signed properly.
         params = {}
         params.update(IDP_PARAMS)
         params.update(REQUEST_PARAMS)
