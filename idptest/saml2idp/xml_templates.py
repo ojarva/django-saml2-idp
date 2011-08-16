@@ -36,3 +36,49 @@ SIGNATURE = (
     '</ds:KeyInfo>'
 '</ds:Signature>'
 )
+
+# Minimal assertion for Google Apps (at this point).
+ASSERTION = (
+    '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" '
+            'ID="${ASSERTION_ID}" '
+            'IssueInstant="${ISSUE_INSTANT}" '
+            'Version="2.0">'
+        '<saml:Issuer>${ISSUER}</saml:Issuer>'
+        '${SIGNATURE}'
+        '<saml:Subject>'
+            '<saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:email" SPNameQualifier="${SP_NAME_QUALIFIER}">'
+            '${SUBJECT_EMAIL}'
+            '</saml:NameID>'
+            '<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">'
+                '<saml:SubjectConfirmationData InResponseTo="#${REQUEST_ID}" NotOnOrAfter="${NOT_ON_OR_AFTER}" Recipient="${ACS_URL}"></saml:SubjectConfirmationData>'
+            '</saml:SubjectConfirmation>'
+        '</saml:Subject>'
+        '<saml:Conditions NotBefore="${NOT_BEFORE}" NotOnOrAfter="${NOT_ON_OR_AFTER}">'
+            '<saml:AudienceRestriction>'
+                '<saml:Audience>${AUDIENCE}</saml:Audience>'
+            '</saml:AudienceRestriction>'
+        '</saml:Conditions>'
+        '<saml:AuthnStatement AuthnInstant="${AUTH_INSTANT}" SessionNotOnOrAfter="${SESSION_NOT_ON_OR_AFTER}">'
+            '<saml:AuthnContext>'
+                '<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>'
+            '</saml:AuthnContext>'
+        '</saml:AuthnStatement>'
+    '</saml:Assertion>'
+)
+
+# Minimal response for Google Apps (at this point).
+RESPONSE = (
+    '<samlp:Response Destination="${ACS_URL}" '
+                    'ID="${RESPONSE_ID}" '
+                    'InResponseTo="${REQUEST_ID}" '
+                    'IssueInstant="${ISSUE_INSTANT}" '
+                    'Version="2.0" '
+                    'xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">'
+        '<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">${ISSUER}</saml:Issuer>'
+        '${RESPONSE_SIGNATURE}'
+        '<samlp:Status>'
+            '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"></samlp:StatusCode>'
+        '</samlp:Status>'
+        '${ASSERTION}'
+    '</samlp:Response>'
+)

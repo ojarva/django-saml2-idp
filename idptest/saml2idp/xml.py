@@ -2,15 +2,10 @@
 Functions for creating XML output.
 """
 import logging
-from django.template import Context, Template
-from misc import canonicalize, ws_strip
-import signing
+from xml_templates import ASSERTION, RESPONSE
 
 # Setup logging.
 logging.basicConfig(filename='saml2idp.log', format='%(asctime)s: %(message)s', level=logging.DEBUG)
-
-# Default signer.
-signer = signing.Signer()
 
 def _get_xml(template, context):
     raw = template.render(context)
@@ -73,16 +68,3 @@ def get_response_xml(saml_request, saml_response, assertion, issuer, signed=Fals
     logging.debug('Signed:')
     logging.debug(signed)
     return signed
-
-def create_signature(unsigned_xml, reference_uri):
-    return signer.get_signature(reference_uri, unsigned_xml)
-
-def get_signature_xml(signature):
-    t = Template(
-        '{% load samltags %}'
-        '{% signature_xml signature %}'
-    )
-    c = Context({
-        'signature': signature,
-    })
-    return _get_xml(t, c)

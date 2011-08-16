@@ -10,7 +10,7 @@ import M2Crypto
 import saml2idp_settings
 from xml_templates import SIGNED_INFO, SIGNATURE
 # until we yank the old stuff entirely:
-from signing_old import *
+#from signing_old import *
 
 
 def _nice(src):
