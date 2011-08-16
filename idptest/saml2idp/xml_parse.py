@@ -9,7 +9,9 @@ def parse_request(request_xml):
     """
     soup = BeautifulStoneSoup(request_xml)
     request = soup.findAll()[0]
-    tmp = {}
+    params = {}
     params['ACS_URL'] = request['assertionconsumerserviceurl']
     params['REQUEST_ID'] = request['id']
+    params['DESTINATION'] = request.get('destination', '')
+    params['PROVIDER_NAME'] = request.get('providername', '')
     return params

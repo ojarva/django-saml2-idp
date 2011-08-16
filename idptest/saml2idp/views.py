@@ -1,5 +1,6 @@
 # Python imports:
 import time
+import uuid
 # Django/other library imports:
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
@@ -12,8 +13,8 @@ import xml_parse
 import xml_render
 
 def get_random_id():
-    #TODO: Make this work.
-    return "a" * 40;
+    random_id = uuid.uuid4().hex
+    return random_id
 
 def get_time_string(delta=0):
     return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime(time.time() + delta))
@@ -39,22 +40,51 @@ def login(request):
     request_params = xml_parse.parse_request(xml)
     validation.validate_request(request_params)
 
-    # Build the assertion.
-    params = {
+    # Build the Assertion.
+    system_params = {
         'ISSUER': saml2idp_settings.SAML2IDP_ISSUER,
     }
-    params.update(request_params)
-    params = {
-        'ASSERTION_ID': get_random_id(),
-        'ISSUE_INSTANT': get_time_string(),
-        'SP_NAME_QUALIFIER': '', #XXX
-        'SUBJECT_EMAIL': '',
-    }
 
-    # Present sent the Assertion. (Because Django has already enforced login.)
+    # Guess at the Audience.
+    audience = request_params['DESTINATION']
+    if not audience:
+        audience = request_params['PROVIDER_NAME']
+
+    assertion_id = get_random_id()
+    assertion_params = {
+        'ASSERTION_ID': assertion_id,
+        'ASSERTION_SIGNATURE': '', # it's unsigned
+        'AUDIENCE': audience,
+        'AUTH_INSTANT': get_time_string(),
+        'ISSUE_INSTANT': get_time_string(),
+        'NOT_BEFORE': get_time_string(),
+        'NOT_ON_OR_AFTER': get_time_string(5), # minutes
+        'SESSION_NOT_ON_OR_AFTER': get_time_string(8 * 60), # 8 hours
+        'SP_NAME_QUALIFIER': audience,
+        'SUBJECT_EMAIL': request.user.email
+    }
+    assertion_params.update(system_params)
+    assertion_params.update(request_params)
+
+    # Build the SAML Response.
+    assertion_xml = xml_render.get_assertion_xml(assertion_params, signed=True)
+    response_id = get_random_id()
+    response_params = {
+        'ASSERTION': assertion_xml,
+        'ISSUE_INSTANT': get_time_string(),
+        'RESPONSE_ID': response_id,
+        'RESPONSE_SIGNATURE': '', # initially unsigned
+    }
+    response_params.update(system_params)
+    response_params.update(request_params)
+
+    # Present the Response. (Because Django has already enforced login.)
+    acs_url = request_params['ACS_URL']
+    response_xml = xml_render.get_response_xml(response_params, signed=True)
+    encoded_xml = response_xml.encode('base64')
     tv = {
-        'acs_url': params['ACS_URL'],
-        'saml_response': response_xml.encode('base64'),
+        'acs_url': acs_url,
+        'saml_response': encoded_xml,
         'relay_state': relay_state,
     }
     return render_to_response('saml2idp/login.html', tv)
