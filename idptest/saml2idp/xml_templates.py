@@ -68,12 +68,12 @@ ASSERTION = (
 
 # Minimal response for Google Apps (at this point).
 RESPONSE = (
-    '<samlp:Response Destination="${ACS_URL}" '
+    '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" '
+                    'Destination="${ACS_URL}" '
                     'ID="${RESPONSE_ID}" '
                     'InResponseTo="${REQUEST_ID}" '
                     'IssueInstant="${ISSUE_INSTANT}" '
-                    'Version="2.0" '
-                    'xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">'
+                    'Version="2.0">'
         '<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">${ISSUER}</saml:Issuer>'
         '${RESPONSE_SIGNATURE}'
         '<samlp:Status>'
