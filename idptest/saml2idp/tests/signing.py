@@ -1,7 +1,7 @@
 import string
 import unittest
-from saml2idp import xml
-from saml2idp.signing import get_signature_xml
+from saml2idp import xml_render
+from saml2idp.xml_signing import get_signature_xml
 from saml2idp.xml_templates import ASSERTION, RESPONSE
 
 IDP_PARAMS = {
@@ -72,7 +72,7 @@ class TestAssertion(XmlTest):
         params.update(IDP_PARAMS)
         params.update(REQUEST_PARAMS)
         params.update(ASSERTION_PARAMS)
-        got = xml.get_assertion_xml(params, signed=False)
+        got = xml_render.get_assertion_xml(params, signed=False)
         self._test(got, ASSERTION_XML)
 
     def test_signed_assertion(self):
@@ -81,7 +81,7 @@ class TestAssertion(XmlTest):
         params.update(IDP_PARAMS)
         params.update(REQUEST_PARAMS)
         params.update(ASSERTION_PARAMS)
-        got = xml.get_assertion_xml(params, signed=True)
+        got = xml_render.get_assertion_xml(params, signed=True)
         self._test(got, SIGNED_ASSERTION_XML)
 
 
@@ -102,7 +102,7 @@ class TestResponse(XmlTest):
         params.update(REQUEST_PARAMS)
         params.update(RESPONSE_PARAMS)
         params['ASSERTION'] = ASSERTION_XML
-        got = xml.get_response_xml(params, signed=False)
+        got = xml_render.get_response_xml(params, signed=False)
         self._test(got, RESPONSE_XML)
 
     def test_response_with_signed_assertion(self):
@@ -112,7 +112,7 @@ class TestResponse(XmlTest):
         params.update(REQUEST_PARAMS)
         params.update(RESPONSE_PARAMS)
         params['ASSERTION'] = SIGNED_ASSERTION_XML
-        got = xml.get_response_xml(params, signed=False)
+        got = xml_render.get_response_xml(params, signed=False)
         self._test(got, RESPONSE_WITH_SIGNED_ASSERTION_XML)
 
     def test_signed_response_with_signed_assertion(self):
@@ -122,5 +122,5 @@ class TestResponse(XmlTest):
         params.update(REQUEST_PARAMS)
         params.update(RESPONSE_PARAMS)
         params['ASSERTION'] = SIGNED_ASSERTION_XML
-        got = xml.get_response_xml(params, signed=True)
+        got = xml_render.get_response_xml(params, signed=True)
         self._test(got, SIGNED_RESPONSE_WITH_SIGNED_ASSERTION_XML)

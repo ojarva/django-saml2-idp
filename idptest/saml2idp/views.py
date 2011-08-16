@@ -8,8 +8,8 @@ from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
 import codex
 import saml2idp_settings
 import validation
-import signing
-import xml
+import xml_signing
+import xml_render
 
 def get_random_id():
     #TODO: Make this work.
