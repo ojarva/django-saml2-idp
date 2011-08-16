@@ -1,5 +1,6 @@
 import string
 import unittest
+from saml2idp import xml
 from saml2idp.signing import get_signature_xml
 from saml2idp.xml_templates import ASSERTION, RESPONSE
 
@@ -65,15 +66,24 @@ class TestAssertion(XmlTest):
         params.update(ASSERTION_PARAMS)
         self._test_template(ASSERTION, params, ASSERTION_XML)
 
+    def test_assertion_rendering(self):
+        # Verifies that the xml rendering is OK.
+        params = {}
+        params.update(IDP_PARAMS)
+        params.update(REQUEST_PARAMS)
+        params.update(ASSERTION_PARAMS)
+        got = xml.get_assertion_xml(params, signed=False)
+        self._test(got, ASSERTION_XML)
+
     def test_signed_assertion(self):
         # This test verifies that the assertion got signed properly.
         params = {}
         params.update(IDP_PARAMS)
         params.update(REQUEST_PARAMS)
         params.update(ASSERTION_PARAMS)
-        signature = get_signature_xml(ASSERTION_XML, '_7ccdda8bc6b328570c03b218d7521772998da45374')
-        params['ASSERTION_SIGNATURE'] = signature
-        self._test_template(ASSERTION, params, SIGNED_ASSERTION_XML)
+        got = xml.get_assertion_xml(params, signed=True)
+        self._test(got, SIGNED_ASSERTION_XML)
+
 
 class TestResponse(XmlTest):
     def test_response(self):
@@ -85,6 +95,16 @@ class TestResponse(XmlTest):
         params['ASSERTION'] = ASSERTION_XML
         self._test_template(RESPONSE, params, RESPONSE_XML)
 
+    def test_response_rendering(self):
+        # Verifies that the rendering is OK.
+        params = {}
+        params.update(IDP_PARAMS)
+        params.update(REQUEST_PARAMS)
+        params.update(RESPONSE_PARAMS)
+        params['ASSERTION'] = ASSERTION_XML
+        got = xml.get_response_xml(params, signed=False)
+        self._test(got, RESPONSE_XML)
+
     def test_response_with_signed_assertion(self):
         # This test also verifies that the template isn't bad.
         params = {}
@@ -92,7 +112,8 @@ class TestResponse(XmlTest):
         params.update(REQUEST_PARAMS)
         params.update(RESPONSE_PARAMS)
         params['ASSERTION'] = SIGNED_ASSERTION_XML
-        self._test_template(RESPONSE, params, RESPONSE_WITH_SIGNED_ASSERTION_XML)
+        got = xml.get_response_xml(params, signed=False)
+        self._test(got, RESPONSE_WITH_SIGNED_ASSERTION_XML)
 
     def test_signed_response_with_signed_assertion(self):
         # This test verifies that the response got signed properly.
@@ -101,6 +122,5 @@ class TestResponse(XmlTest):
         params.update(REQUEST_PARAMS)
         params.update(RESPONSE_PARAMS)
         params['ASSERTION'] = SIGNED_ASSERTION_XML
-        signature = get_signature_xml(RESPONSE_WITH_SIGNED_ASSERTION_XML, '_2972e82c07bb5453956cc11fb19cad97ed26ff8bb4')
-        params['RESPONSE_SIGNATURE'] = signature
-        self._test_template(RESPONSE, params, SIGNED_RESPONSE_WITH_SIGNED_ASSERTION_XML)
+        got = xml.get_response_xml(params, signed=True)
+        self._test(got, SIGNED_RESPONSE_WITH_SIGNED_ASSERTION_XML)

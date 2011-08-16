@@ -3,7 +3,9 @@ Functions for creating XML output.
 """
 import logging
 import string
+from signing import get_signature_xml
 from xml_templates import ASSERTION, RESPONSE
+
 
 # Setup logging.
 logging.basicConfig(filename='saml2idp.log', format='%(asctime)s: %(message)s', level=logging.DEBUG)
@@ -37,10 +39,7 @@ def get_response_xml(parameters, signed=False):
     # Reset signatures.
     params = {}
     params.update(parameters)
-    params['ASSERTION_SIGNATURE'] = ''
     params['RESPONSE_SIGNATURE'] = ''
-
-    assertion_xml = get_assertion_xml(params, issuer, signed)
 
     template = string.Template(RESPONSE)
     unsigned = template.substitute(params)
