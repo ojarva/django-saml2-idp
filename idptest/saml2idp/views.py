@@ -47,10 +47,11 @@ def login(request):
         'ISSUER': saml2idp_settings.SAML2IDP_ISSUER,
     }
 
-    # Guess at the Audience.
-    audience = request_params['DESTINATION']
-    if not audience:
-        audience = request_params['PROVIDER_NAME']
+# For the moment, leave this out. YAGNI? See xml_templates.py.
+#    # Guess at the Audience.
+#    audience = request_params['DESTINATION']
+#    if not audience:
+#        audience = request_params['PROVIDER_NAME']
 
     assertion_id = get_random_id()
     assertion_params = {
