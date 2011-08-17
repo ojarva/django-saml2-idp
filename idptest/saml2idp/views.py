@@ -13,6 +13,9 @@ import validation
 import xml_parse
 import xml_render
 
+MINUTES = 60
+HOURS = 60 * MINUTES
+
 def get_random_id():
     random_id = uuid.uuid4().hex
     return random_id
@@ -47,22 +50,23 @@ def login(request):
         'ISSUER': saml2idp_settings.SAML2IDP_ISSUER,
     }
 
-# For the moment, leave this out. YAGNI? See xml_templates.py.
-#    # Guess at the Audience.
-#    audience = request_params['DESTINATION']
-#    if not audience:
-#        audience = request_params['PROVIDER_NAME']
+    # Guess at the Audience.
+    audience = request_params['DESTINATION']
+    if not audience:
+        audience = request_params['PROVIDER_NAME']
 
     assertion_id = get_random_id()
+    session_index = request.session.session_key
     assertion_params = {
         'ASSERTION_ID': assertion_id,
         'ASSERTION_SIGNATURE': '', # it's unsigned
-        'AUDIENCE': audience,
+        'AUDIENCE': '', # YAGNI? See note in xml_templates.py.
         'AUTH_INSTANT': get_time_string(),
         'ISSUE_INSTANT': get_time_string(),
-        'NOT_BEFORE': get_time_string(),
-        'NOT_ON_OR_AFTER': get_time_string(5), # minutes
-        'SESSION_NOT_ON_OR_AFTER': get_time_string(8 * 60), # 8 hours
+        'NOT_BEFORE': get_time_string(-1 * HOURS), #TODO: Make these settings.
+        'NOT_ON_OR_AFTER': get_time_string(15 * MINUTES),
+        'SESSION_INDEX': session_index,
+        'SESSION_NOT_ON_OR_AFTER': get_time_string(8 * HOURS),
         'SP_NAME_QUALIFIER': audience,
         'SUBJECT_EMAIL': request.user.email
     }

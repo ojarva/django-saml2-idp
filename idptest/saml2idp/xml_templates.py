@@ -59,7 +59,11 @@ ASSERTION = (
 #                '<saml:Audience>${AUDIENCE}</saml:Audience>'
 #            '</saml:AudienceRestriction>'
         '</saml:Conditions>'
-        '<saml:AuthnStatement AuthnInstant="${AUTH_INSTANT}" SessionNotOnOrAfter="${SESSION_NOT_ON_OR_AFTER}">'
+        '<saml:AuthnStatement AuthnInstant="${AUTH_INSTANT}"'
+# Trouble in session land:
+#            ' SessionNotOnOrAfter="${SESSION_NOT_ON_OR_AFTER}"'
+#            ' SessionIndex="${SESSION_INDEX}"'
+            '>'
             '<saml:AuthnContext>'
                 '<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>'
             '</saml:AuthnContext>'
