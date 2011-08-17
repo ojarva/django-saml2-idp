@@ -6,17 +6,10 @@ try:
 except:
     SAM2IDP_AUTOSUBMIT = True
 
-
 try:
-    SAML2IDP_SIGNING = settings.SAML2IDP_SIGNING
+    SAML2IDP_ISSUER = settings.SAML2IDP_ISSUER
 except:
-    SAML2IDP_SIGNING = False # by default
-
-# If using relative paths, be careful!
-try:
-    SAML2IDP_PRIVATE_KEY_FILE = settings.SAML2IDP_PRIVATE_KEY_FILE
-except:
-    SAML2IDP_PRIVATE_KEY_FILE = 'keys/private-key.pem'
+    SAML2IDP_ISSUER = 'http://127.0.0.1:8000'
 
 # If using relative paths, be careful!
 try:
@@ -24,12 +17,13 @@ try:
 except:
     SAML2IDP_CERTIFICATE_FILE = 'keys/certificate.pem'
 
+# If using relative paths, be careful!
 try:
-    SP_RESPONSE_URL = settings.SP_RESPONSE_URL
+    SAML2IDP_PRIVATE_KEY_FILE = settings.SAML2IDP_PRIVATE_KEY_FILE
 except:
-    SP_RESPONSE_URL = 'http://127.0.0.1:9000/sp/sso/post/response/'
+    SAML2IDP_PRIVATE_KEY_FILE = 'keys/private-key.pem'
 
 try:
-    SAML2IDP_ISSUER = settings.SAML2IDP_ISSUER
+    SAML2IDP_SIGNING = settings.SAML2IDP_SIGNING
 except:
-    SAML2IDP_ISSUER = 'http://127.0.0.1:8000'
+    SAML2IDP_SIGNING = True # by default
