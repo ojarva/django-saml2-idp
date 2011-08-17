@@ -12,7 +12,7 @@ NOTE #2: I'm using string.Template, rather than Django Templates, to avoid
     the overhead of loading Django's template code. (KISS, baby.)
 """
 SIGNED_INFO = (
-    '<ds:SignedInfo>'
+    '<ds:SignedInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">'
         '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></ds:CanonicalizationMethod>'
         '<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></ds:SignatureMethod>'
         '<ds:Reference URI="#${REFERENCE_URI}">'

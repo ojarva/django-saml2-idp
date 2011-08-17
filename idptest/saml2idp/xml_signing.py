@@ -12,9 +12,6 @@ import saml2idp_settings
 from codex import nice64
 from xml_templates import SIGNED_INFO, SIGNATURE
 
-# Setup logging.
-logging.basicConfig(filename='saml2idp.log', format='%(asctime)s: %(message)s', level=logging.DEBUG)
-
 def get_signature_xml(subject, reference_uri):
     """
     Returns XML Signature for subject.
@@ -57,9 +54,10 @@ def get_signature_xml(subject, reference_uri):
     cert_data = ''.join(certificate.as_pem().split('\n')[1:-2])
 
     # Put the signed_info and rsa_signature into the XML signature.
+    signed_info_short = signed_info.replace(' xmlns:ds="http://www.w3.org/2000/09/xmldsig#"', '')
     signature_xml = string.Template(SIGNATURE).substitute({
         'RSA_SIGNATURE': rsa_signature,
-        'SIGNED_INFO': signed_info,
+        'SIGNED_INFO': signed_info_short,
         'CERTIFICATE': cert_data,
         })
     logging.debug('Signature XML: ' + signature_xml)

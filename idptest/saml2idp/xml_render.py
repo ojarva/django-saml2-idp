@@ -3,7 +3,7 @@ Functions for creating XML output.
 """
 import logging
 import string
-from signing import get_signature_xml
+from xml_signing import get_signature_xml
 from xml_templates import ASSERTION, RESPONSE
 
 def get_assertion_xml(parameters, signed=False):

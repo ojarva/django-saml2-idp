@@ -1,4 +1,5 @@
 # Python imports:
+import logging
 import time
 import uuid
 # Django/other library imports:
@@ -37,6 +38,7 @@ def login(request):
 
     # Read the request.
     xml = codex.decode_base64_and_inflate(msg)
+    logging.debug('login view received xml: ' + xml)
     request_params = xml_parse.parse_request(xml)
     validation.validate_request(request_params)
 
