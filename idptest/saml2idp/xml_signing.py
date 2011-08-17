@@ -3,19 +3,17 @@ Signing code goes here.
 """
 # python:
 import hashlib
+import logging
 import string
 # other libraries:
 import M2Crypto
 # this app:
 import saml2idp_settings
+from codex import nice64
 from xml_templates import SIGNED_INFO, SIGNATURE
-# until we yank the old stuff entirely:
-#from signing_old import *
 
-
-def _nice(src):
-    """ Returns src formatted nicely for our XML. """
-    return src.encode('base64').replace('\n', '')
+# Setup logging.
+logging.basicConfig(filename='saml2idp.log', format='%(asctime)s: %(message)s', level=logging.DEBUG)
 
 def get_signature_xml(subject, reference_uri):
     """
@@ -23,28 +21,36 @@ def get_signature_xml(subject, reference_uri):
     """
     private_key_file = saml2idp_settings.SAML2IDP_PRIVATE_KEY_FILE
     certificate_file = saml2idp_settings.SAML2IDP_CERTIFICATE_FILE
+    logging.debug('get_signature_xml - Begin.')
+    logging.debug('Using private key file: ' + private_key_file)
+    logging.debug('Using certificate file: ' + certificate_file)
+    logging.debug('Subject: ' + subject)
 
     # Hash the subject.
     subject_hash = hashlib.sha1()
     subject_hash.update(subject)
-    subject_digest = _nice(subject_hash.digest())
+    subject_digest = nice64(subject_hash.digest())
+    logging.debug('Subject digest: ' + subject_digest)
 
     # Create signed_info.
     signed_info = string.Template(SIGNED_INFO).substitute({
         'REFERENCE_URI': reference_uri,
         'SUBJECT_DIGEST': subject_digest,
         })
+    logging.debug('SignedInfo XML: ' + signed_info)
 
-    # "Digest" the signed_info.
-    info_hash = hashlib.sha1()
-    info_hash.update(signed_info)
-    info_digest = _nice(info_hash.digest())
+#    # "Digest" the signed_info.
+#    info_hash = hashlib.sha1()
+#    info_hash.update(signed_info)
+#    info_digest = info_hash.digest()
+#    logging.debug('Info digest: ' + nice64(info_digest))
 
-    # RSA-sign the signed_info digest.
+    # RSA-sign the signed_info.
     private_key = M2Crypto.EVP.load_key(private_key_file)
     private_key.sign_init()
-    private_key.sign_update(info_digest)
-    rsa_signature = _nice(private_key.sign_final())
+    private_key.sign_update(signed_info)
+    rsa_signature = nice64(private_key.sign_final())
+    logging.debug('RSA Signature: ' + rsa_signature)
 
     # Load the certificate.
     certificate = M2Crypto.X509.load_cert(certificate_file)
@@ -56,5 +62,5 @@ def get_signature_xml(subject, reference_uri):
         'SIGNED_INFO': signed_info,
         'CERTIFICATE': cert_data,
         })
-
+    logging.debug('Signature XML: ' + signature_xml)
     return signature_xml

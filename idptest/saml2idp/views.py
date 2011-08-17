@@ -81,7 +81,7 @@ def login(request):
     # Present the Response. (Because Django has already enforced login.)
     acs_url = request_params['ACS_URL']
     response_xml = xml_render.get_response_xml(response_params, signed=True)
-    encoded_xml = response_xml.encode('base64')
+    encoded_xml = codex.nice64(response_xml)
     tv = {
         'acs_url': acs_url,
         'saml_response': encoded_xml,

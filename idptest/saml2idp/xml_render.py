@@ -6,10 +6,6 @@ import string
 from signing import get_signature_xml
 from xml_templates import ASSERTION, RESPONSE
 
-
-# Setup logging.
-logging.basicConfig(filename='saml2idp.log', format='%(asctime)s: %(message)s', level=logging.DEBUG)
-
 def get_assertion_xml(parameters, signed=False):
     # Reset signature.
     params = {}
