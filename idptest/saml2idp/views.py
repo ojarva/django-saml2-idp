@@ -3,6 +3,7 @@ import logging
 import time
 import uuid
 # Django/other library imports:
+from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
@@ -89,25 +90,21 @@ def login(request):
     acs_url = request_params['ACS_URL']
     response_xml = xml_render.get_response_xml(response_params, signed=True)
     encoded_xml = codex.nice64(response_xml)
+    autosubmit = saml2idp_settings.SAM2IDP_AUTOSUBMIT
     tv = {
         'acs_url': acs_url,
         'saml_response': encoded_xml,
         'relay_state': relay_state,
+        'autosubmit': autosubmit,
     }
     return render_to_response('saml2idp/login.html', tv)
 
 @csrf_view_exempt
 def logout(request):
     """
-    Receives a SAML 2.0 LogoutRequest from a Service Point.
+    Receives a SAML 2.0 LogoutRequest from a Service Point,
+    logs out the user and returns a standard logged-out page.
     """
-    tv = {}
-    return render_to_response('saml2idp/logout.html', tv)
-
-def logged_out(request):
-    """
-    Presents a standard logged-out message, in case the Service Point doesn't
-    have its own logged-out page.
-    """
+    auth.logout(request)
     tv = {}
     return render_to_response('saml2idp/logged_out.html', tv)

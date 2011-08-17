@@ -1,6 +1,12 @@
 from django.conf import settings
 
-#TODO: Add settings so that signed stuff works in views.py
+try:
+    #TODO: Some SAML Requestors may disallow this?
+    SAM2IDP_AUTOSUBMIT = settings.SAM2IDP_AUTOSUBMIT
+except:
+    SAM2IDP_AUTOSUBMIT = True
+
+
 try:
     SAML2IDP_SIGNING = settings.SAML2IDP_SIGNING
 except:

@@ -1,13 +1,25 @@
 {% extends "saml2idp/base.html" %}
 
 {% block content %}
+{% if autosubmit %}<noscript>{% endif %}
 <div id="logged_in_message">
-You are now signed in at the Identity Provider.
+You are now signed in at the Identity Provider.<br />
 Click Continue to return to the Service Point.
 </div>
+{% if autosubmit %}</noscript>{% endif %}
 <form method="post" action="{{ acs_url }}">
    <input type="hidden" name="RelayState" value="{{ relay_state }}" />
    <input type="hidden" name="SAMLResponse" value="{{ saml_response }}" />
+{% if not autosubmit %}
    <input type="submit" value="Continue" />
+{% endif %}
  </form>
+ {% if autosubmit %}
+ <script language="javascript">
+ <!--
+    /* Automatically submit the form. */
+    document.forms[0].submit();
+ //-->
+ </script>
+ {% endif %}
  {% endblock content %}
