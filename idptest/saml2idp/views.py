@@ -37,7 +37,8 @@ def login_post(request):
     # Store these values now, because Django's login cycle won't preserve them.
     request.session['SAMLRequest'] = request.POST['SAMLRequest']
     request.session['RelayState'] = request.POST['RelayState']
-    return redirect('saml2idp:login_continue')
+    import pdb; pdb.set_trace()
+    return redirect('login_continue')
 
 
 @login_required
@@ -52,7 +53,6 @@ def login_continue(request):
     relay_state = request.session['RelayState']
 
     # Read the request.
-    #xml = codex.decode_base64_and_inflate(msg) # GOOGLE APPS
     xml = base64.b64decode(msg) # SALESFORCE
     logging.debug('login view received xml: ' + xml)
     request_params = xml_parse.parse_request(xml)
@@ -111,7 +111,6 @@ def login_continue(request):
     response_xml = xml_render.get_response_xml(response_params, signed=True)
     encoded_xml = codex.nice64(response_xml)
     autosubmit = saml2idp_settings.SAM2IDP_AUTOSUBMIT
-#    autosubmit = False # SALESFORCE
     tv = {
         'acs_url': acs_url,
         'saml_response': encoded_xml,
