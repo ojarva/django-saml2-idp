@@ -4,14 +4,14 @@ Functions for creating XML output.
 import logging
 import string
 from xml_signing import get_signature_xml
-from xml_templates import ASSERTION, RESPONSE
+from xml_templates import ASSERTION_GOOGLE, ASSERTION_SALESFORCE, RESPONSE
 
-def get_assertion_xml(parameters, signed=False):
+def _get_assertion_xml(template, parameters, signed=False):
     # Reset signature.
     params = {}
     params.update(parameters)
     params['ASSERTION_SIGNATURE'] = ''
-    template = string.Template(ASSERTION)
+    template = string.Template(template)
 
     unsigned = template.substitute(params)
     logging.debug('Unsigned:')
@@ -27,6 +27,12 @@ def get_assertion_xml(parameters, signed=False):
     logging.debug('Signed:')
     logging.debug(signed)
     return signed
+
+def get_assertion_google_xml(parameters, signed=False):
+    return _get_assertion_xml(ASSERTION_GOOGLE, parameters, signed)
+
+def get_assertion_salesforce_xml(parameters, signed=False):
+    return _get_assertion_xml(ASSERTION_SALESFORCE, parameters, signed)
 
 def get_response_xml(parameters, signed=False):
     """

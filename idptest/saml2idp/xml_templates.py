@@ -38,7 +38,7 @@ SIGNATURE = (
 )
 
 # Minimal assertion for Google Apps (at this point).
-ASSERTION = (
+ASSERTION_GOOGLE = (
     '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" '
             'ID="${ASSERTION_ID}" '
             'IssueInstant="${ISSUE_INSTANT}" '
@@ -50,11 +50,13 @@ ASSERTION = (
             '${SUBJECT_EMAIL}'
             '</saml:NameID>'
             '<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">'
-                '<saml:SubjectConfirmationData InResponseTo="${REQUEST_ID}" NotOnOrAfter="${NOT_ON_OR_AFTER}" Recipient="${ACS_URL}"></saml:SubjectConfirmationData>'
+                '<saml:SubjectConfirmationData '
+                'InResponseTo="${REQUEST_ID}" '
+                'NotOnOrAfter="${NOT_ON_OR_AFTER}" Recipient="${ACS_URL}"></saml:SubjectConfirmationData>'
             '</saml:SubjectConfirmation>'
         '</saml:Subject>'
         '<saml:Conditions NotBefore="${NOT_BEFORE}" NotOnOrAfter="${NOT_ON_OR_AFTER}">'
-# For the moment, leave this out. YAGNI? See views.py
+# For the moment, leave this out, for google apps. YAGNI? See views.py
 #            '<saml:AudienceRestriction>'
 #                '<saml:Audience>${AUDIENCE}</saml:Audience>'
 #            '</saml:AudienceRestriction>'
@@ -70,6 +72,42 @@ ASSERTION = (
         '</saml:AuthnStatement>'
     '</saml:Assertion>'
 )
+
+# Minimal assertion for Google Apps (at this point).
+ASSERTION_SALESFORCE = (
+    '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" '
+            'ID="${ASSERTION_ID}" '
+            'IssueInstant="${ISSUE_INSTANT}" '
+            'Version="2.0">'
+        '<saml:Issuer>${ISSUER}</saml:Issuer>'
+        '${ASSERTION_SIGNATURE}'
+        '<saml:Subject>'
+            '<saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:email" SPNameQualifier="${SP_NAME_QUALIFIER}">'
+            '${SUBJECT_EMAIL}'
+            '</saml:NameID>'
+            '<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">'
+                '<saml:SubjectConfirmationData '
+                'InResponseTo="${REQUEST_ID}" '
+                'NotOnOrAfter="${NOT_ON_OR_AFTER}" Recipient="${ACS_URL}"></saml:SubjectConfirmationData>'
+            '</saml:SubjectConfirmation>'
+        '</saml:Subject>'
+        '<saml:Conditions NotBefore="${NOT_BEFORE}" NotOnOrAfter="${NOT_ON_OR_AFTER}">'
+            '<saml:AudienceRestriction>'
+                '<saml:Audience>${AUDIENCE}</saml:Audience>'
+            '</saml:AudienceRestriction>'
+        '</saml:Conditions>'
+        '<saml:AuthnStatement AuthnInstant="${AUTH_INSTANT}"'
+# Trouble in session land:
+#            ' SessionNotOnOrAfter="${SESSION_NOT_ON_OR_AFTER}"'
+#            ' SessionIndex="${SESSION_INDEX}"'
+            '>'
+            '<saml:AuthnContext>'
+                '<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>'
+            '</saml:AuthnContext>'
+        '</saml:AuthnStatement>'
+    '</saml:Assertion>'
+)
+
 
 # Minimal response for Google Apps (at this point).
 RESPONSE = (
