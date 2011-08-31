@@ -18,6 +18,15 @@ import xml_render
 MINUTES = 60
 HOURS = 60 * MINUTES
 
+def get_email(request):
+    """
+    Returns the user's email address for standard Django user accounts.
+    If you have a special user type object, you probably will need to write
+    a function with this signature, and specify that function as an optional
+    parameter to the login_continue view. See that view for more info.
+    """
+    return request.user.email
+
 def get_random_id():
     random_id = uuid.uuid4().hex
     return random_id
@@ -42,11 +51,15 @@ def login_post(request):
 
 @login_required
 @csrf_response_exempt
-def login_continue(request):
+def login_continue(request, *args, **kwargs):
     """
     SALESFORCE SPECIFIC.
     Presents a SAML 2.0 Assertion for POSTing back to the Service Point.
     """
+    # First, handle any optional parameters.
+    get_email_function = kwargs.get('get_email_function', get_email)
+    validate_user_function = kwargs.get('validate_user_function', validation.validate_user)
+
     # Retrieve the AuthnRequest from the session.
     msg = request.session['SAMLRequest']
     relay_state = request.session['RelayState']
@@ -60,6 +73,12 @@ def login_continue(request):
 
     validation.validate_request(request_params)
 
+    # Just in case downstream code wants to filter by some user criteria:
+    try:
+        validate_user_function(request)
+    except:
+        return render_to_response('saml2idp/invalid_user.html')
+
     # Build the Assertion.
     system_params = {
         'ISSUER': saml2idp_settings.SAML2IDP_ISSUER,
@@ -71,7 +90,7 @@ def login_continue(request):
         audience = request_params['PROVIDER_NAME']
     audience = 'https://saml.salesforce.com' # SALESFORCE
 
-    email = request.user.email
+    email = get_email_function(request)
 
     assertion_id = get_random_id()
     session_index = request.session.session_key

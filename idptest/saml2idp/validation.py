@@ -6,4 +6,12 @@ invalid conditions. (I think.)
 
 def validate_request(authn_req):
     #XXX: Validate against known/approved SPs?
-    return
+    pass
+
+def validate_user(request):
+    """
+    Stub. If you need per-user validation beyond simple authentication, then
+    create a method with this signature and pass it into login_continue()
+    as the 'validate_user_function' optional parameter.
+    """
+    pass
