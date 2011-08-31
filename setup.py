@@ -7,7 +7,7 @@ setup(
     author_email = 'john@andersoninnovative.com',
     description = 'SAML 2.0 IdP for Django',
     long_description = 'SAML 2.0 Identity Provider app for Django projects.',
-    install_requires = ['M2Crypto'],
+    #install_requires = ['M2Crypto'], # This doesn't work right.
     license = 'MIT',
     packages = ['saml2idp'],
     package_dir = {'saml2idp': 'idptest/saml2idp'},
