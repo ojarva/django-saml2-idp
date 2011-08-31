@@ -128,7 +128,7 @@ def login_continue(request, *args, **kwargs):
 
     response_xml = xml_render.get_response_xml(response_params, signed=True)
     encoded_xml = codex.nice64(response_xml)
-    autosubmit = saml2idp_settings.SAM2IDP_AUTOSUBMIT
+    autosubmit = saml2idp_settings.SAML2IDP_AUTOSUBMIT
     tv = {
         'acs_url': acs_url,
         'saml_response': encoded_xml,
@@ -208,7 +208,7 @@ def login(request):
 
     response_xml = xml_render.get_response_xml(response_params, signed=True)
     encoded_xml = codex.nice64(response_xml)
-    autosubmit = saml2idp_settings.SAM2IDP_AUTOSUBMIT
+    autosubmit = saml2idp_settings.SAML2IDP_AUTOSUBMIT
     tv = {
         'acs_url': acs_url,
         'saml_response': encoded_xml,

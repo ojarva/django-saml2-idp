@@ -2,9 +2,9 @@ from django.conf import settings
 
 try:
     #TODO: Some SAML Requestors may disallow this?
-    SAM2IDP_AUTOSUBMIT = settings.SAM2IDP_AUTOSUBMIT
+    SAML2IDP_AUTOSUBMIT = settings.SAML2IDP_AUTOSUBMIT
 except:
-    SAM2IDP_AUTOSUBMIT = True
+    SAML2IDP_AUTOSUBMIT = True
 
 try:
     SAML2IDP_ISSUER = settings.SAML2IDP_ISSUER
