@@ -146,6 +146,8 @@ def login(request):
     Receives a *GET* SAML 2.0 AuthnRequest from a Service Point and
     presents a SAML 2.0 Assertion for POSTing back to the Service Point.
     """
+    #TODO: Probably, we'll need some optional parameters, like in login_continue().
+
     # Receive the AuthnRequest.
     if request.method != 'GET':
         # Django will mess up POST data, due to @login_required.
