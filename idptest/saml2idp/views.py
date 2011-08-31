@@ -37,7 +37,6 @@ def login_post(request):
     # Store these values now, because Django's login cycle won't preserve them.
     request.session['SAMLRequest'] = request.POST['SAMLRequest']
     request.session['RelayState'] = request.POST['RelayState']
-    import pdb; pdb.set_trace()
     return redirect('login_continue')
 
 
