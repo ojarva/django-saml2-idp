@@ -69,8 +69,6 @@ def login_continue(request, *args, **kwargs):
     logging.debug('login view received xml: ' + xml)
     request_params = xml_parse.parse_request(xml)
 
-    request_params['ACS_URL'] = 'https://login.salesforce.com' # SALESFORCE
-
     validation.validate_request(request_params)
 
     # Just in case downstream code wants to filter by some user criteria:
@@ -124,7 +122,6 @@ def login_continue(request, *args, **kwargs):
 
     # Present the Response. (Because Django has already enforced login.)
     acs_url = request_params['ACS_URL']
-    acs_url = 'https://login.salesforce.com' # SALESFORCE
 
     response_xml = xml_render.get_response_xml(response_params, signed=True)
     encoded_xml = codex.nice64(response_xml)
