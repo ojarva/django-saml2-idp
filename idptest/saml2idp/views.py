@@ -28,7 +28,8 @@ def get_email(request):
     return request.user.email
 
 def get_random_id():
-    random_id = uuid.uuid4().hex
+    #NOTE: It is very important that these random IDs NOT start with a number.
+    random_id = '_' + uuid.uuid4().hex
     return random_id
 
 def get_time_string(delta=0):
