@@ -138,13 +138,15 @@ def login_continue(request, *args, **kwargs):
 @login_required
 @csrf_view_exempt
 @csrf_response_exempt
-def login(request):
+def login(request, *args, **kwargs):
     """
     GOOGLE APPS SPECIFIC.
     Receives a *GET* SAML 2.0 AuthnRequest from a Service Point and
     presents a SAML 2.0 Assertion for POSTing back to the Service Point.
     """
-    #TODO: Probably, we'll need some optional parameters, like in login_continue().
+    # First, handle any optional parameters.
+    get_email_function = kwargs.get('get_email_function', get_email)
+    validate_user_function = kwargs.get('validate_user_function', validation.validate_user)
 
     # Receive the AuthnRequest.
     if request.method != 'GET':
@@ -161,6 +163,12 @@ def login(request):
 
     validation.validate_request(request_params)
 
+    # Just in case downstream code wants to filter by some user criteria:
+    try:
+        validate_user_function(request)
+    except:
+        return render_to_response('saml2idp/invalid_user.html')
+
     # Build the Assertion.
     system_params = {
         'ISSUER': saml2idp_settings.SAML2IDP_ISSUER,
@@ -171,7 +179,7 @@ def login(request):
     #if not audience:
     audience = request_params['PROVIDER_NAME']
 
-    email = request.user.email
+    email = get_email_function(request)
 
     assertion_id = get_random_id()
     session_index = request.session.session_key
