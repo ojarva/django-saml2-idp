@@ -33,3 +33,10 @@ try:
 except:
     #NOTE: If this is empty, SAML2IDP will be effectively disabled.
     SAML2IDP_VALID_ACS = []
+
+try:
+    SAML2IDP_PROCESSOR_CLASSES = settings.SAML2IDP_PROCESSOR_CLASSES
+except:
+    SAML2IDP_PROCESSOR_CLASSES = [
+        'saml2idp.processors.generic',
+    ]
