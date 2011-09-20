@@ -1,6 +1,7 @@
 """
 SAML 2.0 AuthnRequest to Response Handler and various processors.
 """
+from django.utils.importlib import import_module
 
 class ProcessorRegistry(object):
     """
@@ -15,12 +16,12 @@ class ProcessorRegistry(object):
         Code informed heavily by django.core.handlers.base.BaseHandler.
         Must be called after the environment is fixed (see __call__).
         """
-        from django.conf import settings
+        from saml2idp_settings import SAML2IDP_PROCESSOR_CLASSES
         from django.core import exceptions
         self._processors = []
 
         processors = []
-        for processors_path in settings.SAML2IDP_PROCESSOR_CLASSES:
+        for processors_path in SAML2IDP_PROCESSOR_CLASSES:
             try:
                 dot = processors_path.rindex('.')
             except ValueError:
@@ -42,7 +43,7 @@ class ProcessorRegistry(object):
         # as a flag for initialization being complete.
         self._processors = processors
 
-    def find_processor(request):
+    def find_processor(self, request):
         """
         Return the first processor that is willing to handle this request.
         """
@@ -58,7 +59,7 @@ class GenericProcessor(object):
     Generic SAML 2.0 AuthnRequest to Response Handler Processor.
     Sub-classes should provide Service Point-specific functionality.
     """
-    def can_handle(request):
+    def can_handle(self, request):
         return False
 
-generic = GenericProcessor()
+generic = GenericProcessor

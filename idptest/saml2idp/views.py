@@ -49,7 +49,7 @@ def login_begin(request, *args, **kwargs):
     # Store these values now, because Django's login cycle won't preserve them.
     request.session['SAMLRequest'] = source['SAMLRequest']
     request.session['RelayState'] = source['RelayState']
-    return redirect('login_continue')
+    return redirect('login_process')
 
 @login_required
 @csrf_response_exempt
