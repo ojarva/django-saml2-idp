@@ -28,6 +28,7 @@ try:
 except:
     SAML2IDP_SIGNING = True # by default
 
+#TODO: Deprecate SAML2IDP_VALID_ACS in favor of SAML2IDP_VALID_ACS.
 try:
     SAML2IDP_VALID_ACS = settings.SAML2IDP_VALID_ACS
 except:

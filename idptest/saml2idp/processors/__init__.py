@@ -1,5 +1,9 @@
 """
 SAML 2.0 AuthnRequest to Response Handler and various processors.
+
+NOTE: Could this be done with middleware? Sure. But it's really only used by
+      the views in this app, and the interface of a Saml2IdpProcessor doesn't
+      match that of a Middleware class.
 """
 from django.utils.importlib import import_module
 
@@ -16,7 +20,7 @@ class ProcessorRegistry(object):
         Code informed heavily by django.core.handlers.base.BaseHandler.
         Must be called after the environment is fixed (see __call__).
         """
-        from saml2idp_settings import SAML2IDP_PROCESSOR_CLASSES
+        from saml2idp.saml2idp_settings import SAML2IDP_PROCESSOR_CLASSES
         from django.core import exceptions
         self._processors = []
 
@@ -52,9 +56,9 @@ class ProcessorRegistry(object):
         for proc in self._processors:
             if proc.can_handle(request):
                 return proc
-        raise Exception('No SAML 2.0 processor is configured to handle this request.')
+        raise Exception('No processor is configured in SAML2IDP_PROCESSOR_CLASSES for this type of request.')
 
-class GenericProcessor(object):
+class Saml2IdpProcessor(object):
     """
     Generic SAML 2.0 AuthnRequest to Response Handler Processor.
     Sub-classes should provide Service Point-specific functionality.
@@ -62,4 +66,5 @@ class GenericProcessor(object):
     def can_handle(self, request):
         return False
 
-generic = GenericProcessor
+generic = Saml2IdpProcessor
+from salesforce import SalesForceProcessor as salesforce
