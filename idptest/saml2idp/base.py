@@ -7,7 +7,7 @@ import uuid
 from BeautifulSoup import BeautifulStoneSoup
 # local app imports:
 import codex
-from exceptions import UserNotAuthorized
+import exceptions
 import saml2idp_settings
 import validation
 import xml_render
@@ -87,7 +87,7 @@ class processor(object):
         Decodes _request_xml from _saml_request.
         """
         self._request_xml = base64.b64decode(self._saml_request)
-        self._logger.debug('Decoded XML: ' + self._request_xml)
+        #self._logger.debug('Decoded XML: %s' % self._request_xml)
 
     def _determine_assertion_id(self):
         """
@@ -210,9 +210,14 @@ class processor(object):
         """
         self._reset(request)
         # Read the request.
-        self._extract_saml_request()
-        self._decode_request()
-        self._parse_request()
+        try:
+            self._extract_saml_request()
+            self._decode_request()
+            self._parse_request()
+        except Exception, e:
+            msg = 'Exception while reading request: %s' % e
+            self._logger.debug(msg)
+            raise exceptions.CannotHandleAssertion(msg)
 
         # Validations:
         self._validate_request()
