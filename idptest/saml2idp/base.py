@@ -87,7 +87,6 @@ class processor(object):
         Decodes _request_xml from _saml_request.
         """
         self._request_xml = base64.b64decode(self._saml_request)
-        #self._logger.debug('Decoded XML: %s' % self._request_xml)
 
     def _determine_assertion_id(self):
         """
@@ -99,9 +98,9 @@ class processor(object):
         """
         Determines the _audience.
         """
-        self._audience = self.request_params.get('DESTINATION', None)
+        self._audience = self._request_params.get('DESTINATION', None)
         if not self._audience:
-            self.audience = self._request_params.get('PROVIDER_NAME', None)
+            self._audience = self._request_params.get('PROVIDER_NAME', None)
 
     def _determine_response_id(self):
         """

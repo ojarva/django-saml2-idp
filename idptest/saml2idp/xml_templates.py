@@ -38,7 +38,7 @@ SIGNATURE = (
 )
 
 # Minimal assertion for Google Apps:
-ASSERTION_GOOGLE = (
+ASSERTION_GOOGLE_APPS = (
     '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" '
             'ID="${ASSERTION_ID}" '
             'IssueInstant="${ISSUE_INSTANT}" '
