@@ -1,4 +1,6 @@
+import logging
 from django.utils.importlib import import_module
+import exceptions
 
 class ProcessorRegistry(object):
     """
@@ -6,6 +8,7 @@ class ProcessorRegistry(object):
     """
     def __init__(self):
         self._processors = []
+        self._logger = logging.getLogger(self.__class__.__name__)
 
     def load_processors(self):
         """
@@ -47,6 +50,10 @@ class ProcessorRegistry(object):
         if not self._processors:
             self.load_processors()
         for proc in self._processors:
-            if proc.can_handle(request):
-                return proc
-        raise Exception('No processor is configured in SAML2IDP_PROCESSOR_CLASSES for this type of request.')
+            try:
+                if proc.can_handle(request):
+                    return proc
+            except exceptions.CannotHandleAssertion, e:
+                # Log these, but keep looking.
+                self._logging.debug('%s %s' % (proc, e))
+        raise Exception('None of the SAML2IDP_PROCESSOR_CLASSES could handle this request.')

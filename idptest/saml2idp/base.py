@@ -193,14 +193,14 @@ class processor(object):
     def _validate_request(self):
         """
         Validates the _saml_request. Sub-classes should override this and
-        throw an Exception if the validation does not succeed.
+        throw a CannotHandleAssertion Exception if the validation does not succeed.
         """
         pass
 
     def _validate_user(self):
         """
         Validates the User. Sub-classes should override this and
-        throw an Exception if the validation does not succeed.
+        throw an CannotHandleAssertion Exception if the validation does not succeed.
         """
         pass
 
@@ -209,12 +209,6 @@ class processor(object):
         Returns true if this processor can handle this request.
         """
         self._reset(request)
-        return False
-
-    def generate_response(self):
-        """
-        Processes request and returns template variables suitable for a response.
-        """
         # Read the request.
         self._extract_saml_request()
         self._decode_request()
@@ -223,7 +217,12 @@ class processor(object):
         # Validations:
         self._validate_request()
         self._validate_user()
+        return True
 
+    def generate_response(self):
+        """
+        Processes request and returns template variables suitable for a response.
+        """
         # Build the assertion and response.
         self._build_assertion()
         self._format_assertion()
