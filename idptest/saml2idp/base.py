@@ -191,10 +191,13 @@ class processor(object):
 
     def _validate_request(self):
         """
-        Validates the _saml_request. Sub-classes should override this and
+        Validates the _saml_request. By default, simply verifies that the ACS_URL
+        is valid, according to settings. Sub-classes should override this and
         throw a CannotHandleAssertion Exception if the validation does not succeed.
         """
-        pass
+        acs_url = self._request_params['ACS_URL']
+        msg = "ACS url '%s' not specified in SAML2IDP_VALID_ACS setting." % acs_url
+        assert acs_url in saml2idp_settings.SAML2IDP_VALID_ACS, msg
 
     def _validate_user(self):
         """

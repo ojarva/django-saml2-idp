@@ -11,6 +11,7 @@ class processor(base.processor):
         Validates the _saml_request. Sub-classes should override this and
         throw an Exception if the validation does not succeed.
         """
+        super(processor, self)._validate_request()
         if not '.salesforce.com' in self._request_params['ACS_URL']:
             raise exceptions.CannotHandleAssertion('AssertionConsumerService is not a SalesForce URL.')
 
