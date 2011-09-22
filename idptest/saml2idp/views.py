@@ -61,78 +61,12 @@ def login_process(request):
     registry = processors.ProcessorRegistry()
     proc = registry.find_processor(request)
 
-    # Retrieve the AuthnRequest from the session.
-    msg = request.session['SAMLRequest']
-    relay_state = request.session['RelayState']
-
-    # Read the request.
-    xml = base64.b64decode(msg) # SALESFORCE
-    logging.debug('login view received xml: ' + xml)
-    request_params = xml_parse.parse_request(xml)
-
-    validation.validate_request(request_params)
-
     # Just in case downstream code wants to filter by some user criteria:
     try:
-        validate_user_function(request)
-    except:
+        tv = proc.generate_response()
+    except processors.exceptions.UserNotAuthorized:
         return render_to_response('saml2idp/invalid_user.html')
 
-    # Build the Assertion.
-    system_params = {
-        'ISSUER': saml2idp_settings.SAML2IDP_ISSUER,
-    }
-
-    # Guess at the Audience.
-    audience = request_params['DESTINATION']
-    if not audience:
-        audience = request_params['PROVIDER_NAME']
-    audience = 'https://saml.salesforce.com' # SALESFORCE
-
-    email = get_email_function(request)
-
-    assertion_id = get_random_id()
-    session_index = request.session.session_key
-    assertion_params = {
-        'ASSERTION_ID': assertion_id,
-        'ASSERTION_SIGNATURE': '', # it's unsigned
-        'AUDIENCE': audience, # YAGNI? See note in xml_templates.py.
-        'AUTH_INSTANT': get_time_string(),
-        'ISSUE_INSTANT': get_time_string(),
-        'NOT_BEFORE': get_time_string(-1 * HOURS), #TODO: Make these settings.
-        'NOT_ON_OR_AFTER': get_time_string(15 * MINUTES),
-        'SESSION_INDEX': session_index,
-        'SESSION_NOT_ON_OR_AFTER': get_time_string(8 * HOURS),
-        'SP_NAME_QUALIFIER': audience,
-        'SUBJECT_EMAIL': email
-    }
-    assertion_params.update(system_params)
-    assertion_params.update(request_params)
-
-    # Build the SAML Response.
-    assertion_xml = xml_render.get_assertion_salesforce_xml(assertion_params, signed=True)
-    response_id = get_random_id()
-    response_params = {
-        'ASSERTION': assertion_xml,
-        'ISSUE_INSTANT': get_time_string(),
-        'RESPONSE_ID': response_id,
-        'RESPONSE_SIGNATURE': '', # initially unsigned
-    }
-    response_params.update(system_params)
-    response_params.update(request_params)
-
-    # Present the Response. (Because Django has already enforced login.)
-    acs_url = request_params['ACS_URL']
-
-    response_xml = xml_render.get_response_xml(response_params, signed=True)
-    encoded_xml = codex.nice64(response_xml)
-    autosubmit = saml2idp_settings.SAML2IDP_AUTOSUBMIT
-    tv = {
-        'acs_url': acs_url,
-        'saml_response': encoded_xml,
-        'relay_state': relay_state,
-        'autosubmit': autosubmit,
-    }
     return render_to_response('saml2idp/login.html', tv)
 
 @csrf_view_exempt
