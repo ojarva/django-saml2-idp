@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
 # saml2idp app imports:
 import saml2idp_settings
 import exceptions
-import processors
+import registry
 
 @csrf_view_exempt
 def login_begin(request, *args, **kwargs):
