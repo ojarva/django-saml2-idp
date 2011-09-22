@@ -1,6 +1,6 @@
-from base import Saml2IdpProcessor
+import base
 
-class SalesForceProcessor(Saml2IdpProcessor):
+class processor(base.processor):
     """
     SalesForce.com-specific SAML 2.0 AuthnRequest to Response Handler Processor.
     """

@@ -5,9 +5,21 @@ import saml2idp_settings
 import validation
 import xml_render
 
-class Saml2IdpProcessor(object):
+MINUTES = 60
+HOURS = 60 * MINUTES
+
+def get_random_id():
+    #NOTE: It is very important that these random IDs NOT start with a number.
+    random_id = '_' + uuid.uuid4().hex
+    return random_id
+
+def get_time_string(delta=0):
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime(time.time() + delta))
+
+
+class processor(object):
     """
-    Generic SAML 2.0 AuthnRequest to Response Processor.
+    Base SAML 2.0 AuthnRequest to Response Processor.
     Sub-classes should provide Service Point-specific functionality.
 
     This class can be used directly by including this in settings.py:
