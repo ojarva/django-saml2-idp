@@ -19,13 +19,87 @@ class Saml2IdpProcessor(object):
     def __init__(self):
         self._logger = logging.get_logger(self.__class__.__name__)
 
+    def _build_assertion(self):
+        """
+        Builds _assertion_params.
+        """
+        self._determine_assertion_id()
+        self._determine_audience()
+        self._determine_email()
+        self._determine_session_index()
+
+        self._assertion_params = {
+            'ASSERTION_ID': self._assertion_id,
+            'ASSERTION_SIGNATURE': '', # it's unsigned
+            'AUDIENCE': self._audience,
+            'AUTH_INSTANT': get_time_string(),
+            'ISSUE_INSTANT': get_time_string(),
+            'NOT_BEFORE': get_time_string(-1 * HOURS), #TODO: Make these settings.
+            'NOT_ON_OR_AFTER': get_time_string(15 * MINUTES),
+            'SESSION_INDEX': self._session_index,
+            'SESSION_NOT_ON_OR_AFTER': get_time_string(8 * HOURS),
+            'SP_NAME_QUALIFIER': self._audience,
+            'SUBJECT': self._subject,
+            'SUBJECT_FORMAT': self._subject_format,
+        }
+        self._assertion_params.update(self._system_params)
+        self._assertion_params.update(self._request_params)
+
+    def _build_response(self):
+        """
+        Builds _response_params.
+        """
+        self._determine_response_id()
+        self._response_params = {
+            'ASSERTION': self._assertion,
+            'ISSUE_INSTANT': get_time_string(),
+            'RESPONSE_ID': self._response_id,
+            'RESPONSE_SIGNATURE': '', # initially unsigned
+        }
+        self._response_params.update(self._system_params)
+        self._response_params.update(self._request_params)
+
+    def _decode_request(self):
+        """
+        Decodes _request_xml from _saml_request.
+        """
+        self._request_xml = base64.b64decode(self._saml_request)
+        self._logger.debug('Decoded XML: ' + self._request)
+
+    def _determine_assertion_id(self):
+        """
+        Determines the _assertion_id.
+        """
+        self._assertion_id = get_random_id()
+
     def _determine_audience(self):
         """
-        Determine the _audience.
+        Determines the _audience.
         """
         self._audience = self.request_params.get('DESTINATION', None)
         if not self._audience:
             self.audience = self._request_params.get('PROVIDER_NAME', None)
+
+    def _determine_response_id(self):
+        """
+        Determines _response_id.
+        """
+        self._response_id = get_random_id()
+
+    def _determine_session_index(self):
+        self._session_index = self._django_request.session.session_key
+
+    def _determine_subject(self):
+        """
+        Determines _subject and _subject_type for Assertion Subject.
+        """
+        self._subject = self._django_request.user.email
+
+    def _encode_response(self):
+        """
+        Encodes _response_xml to _encoded_xml.
+        """
+        self._saml_response = codex.nice64(self._response_xml)
 
     def _extract_saml_request(self):
         """
@@ -34,16 +108,33 @@ class Saml2IdpProcessor(object):
         self._saml_request = self._django_request.session['SAMLRequest']
         self._relay_state = self._django_request.session['RelayState']
 
-    def _decode_request(self):
+    def _format_assertion(self):
         """
-        Decodes _request_xml from _saml_request.
+        Formats _assertion_params as _assertion.
         """
-        self._request_xml = base64.b64decode(self._saml_request)
-        self._logger.debug('Decoded XML: ' + self._request_xml)
+        self._assertion_xml = xml_render.get_assertion_salesforce(self._assertion_params, signed=True)
+
+    def _format_response(self):
+        """
+        Formats _response_params as _response_xml.
+        """
+        self._response_xml = xml_render.get_response(self._response_params, signed=True)
+
+    def _get_django_response_params(self):
+        """
+        Returns a dictionary of parameters for the response template.
+        """
+        tv = {
+            'acs_url': self._request_params['ACS_URL'],
+            'saml_response': self._saml_response,
+            'relay_state': self._relay_state,
+            'autosubmit': saml2idp_settings.SAML2IDP_AUTOSUBMIT,
+        }
+        return tv
 
     def _parse_request(self):
         """
-        Parses various parameters from _request_xml into _request_params.
+        Parses various parameters from _request into _request_params.
         """
         pass
 
@@ -52,12 +143,19 @@ class Saml2IdpProcessor(object):
         Initialize (and reset) object properties, so we don't risk carrying
         over anything from the last authentication.
         """
+        self._assertion_params = None
+        self._assertion_xml = None
         self._django_request = None
-        self._saml_request = None
         self._relay_state = None
         self._request = None
+        self._request_id = None
         self._request_xml = None
         self._request_params = None
+        self._response_id = None
+        self._saml_request = None
+        self._saml_response = None
+        self._subject = None
+        self._subject_format = 'urn:oasis:names:tc:SAML:2.0:nameid-format:email'
         self._system_params = {
             'ISSUER': saml2idp_settings.SAML2IDP_ISSUER,
         }
@@ -77,6 +175,9 @@ class Saml2IdpProcessor(object):
         pass
 
     def can_handle(self, request):
+        """
+        Returns true if this processor can handle this request.
+        """
         self._reset()
         self._django_request = dict(**request) #deepcopy and save for generate_request
         return False
@@ -85,9 +186,8 @@ class Saml2IdpProcessor(object):
         """
         Processes request and returns template variables suitable for a response.
         """
-        self._extract_saml_request()
-
         # Read the request.
+        self._extract_saml_request()
         self._decode_request()
         self._parse_request()
 
@@ -95,50 +195,12 @@ class Saml2IdpProcessor(object):
         self._validate_request()
         self._validate_user()
 
-        # Build the Assertion.
-        self._determine_audience()
+        # Build the assertion and response.
+        self._build_assertion()
+        self._format_assertion()
+        self._build_response()
+        self._format_response()
+        self._encode_response()
 
-        email = get_email(request)
-
-        assertion_id = get_random_id()
-        session_index = request.session.session_key
-        assertion_params = {
-            'ASSERTION_ID': assertion_id,
-            'ASSERTION_SIGNATURE': '', # it's unsigned
-            'AUDIENCE': audience, # YAGNI? See note in xml_templates.py.
-            'AUTH_INSTANT': get_time_string(),
-            'ISSUE_INSTANT': get_time_string(),
-            'NOT_BEFORE': get_time_string(-1 * HOURS), #TODO: Make these settings.
-            'NOT_ON_OR_AFTER': get_time_string(15 * MINUTES),
-            'SESSION_INDEX': session_index,
-            'SESSION_NOT_ON_OR_AFTER': get_time_string(8 * HOURS),
-            'SP_NAME_QUALIFIER': audience,
-            'SUBJECT_EMAIL': email
-        }
-        assertion_params.update(system_params)
-        assertion_params.update(request_params)
-
-        # Build the SAML Response.
-        assertion_xml = xml_render.get_assertion_salesforce_xml(assertion_params, signed=True)
-        response_id = get_random_id()
-        response_params = {
-            'ASSERTION': assertion_xml,
-            'ISSUE_INSTANT': get_time_string(),
-            'RESPONSE_ID': response_id,
-            'RESPONSE_SIGNATURE': '', # initially unsigned
-        }
-        response_params.update(system_params)
-        response_params.update(request_params)
-
-        # Present the Response. (Because Django has already enforced login.)
-        acs_url = request_params['ACS_URL']
-
-        response_xml = xml_render.get_response_xml(response_params, signed=True)
-        encoded_xml = codex.nice64(response_xml)
-        autosubmit = saml2idp_settings.SAML2IDP_AUTOSUBMIT
-        tv = {
-            'acs_url': acs_url,
-            'saml_response': encoded_xml,
-            'relay_state': relay_state,
-            'autosubmit': autosubmit,
-        }
+        # Return proper template params.
+        return self._get_django_response_params()
