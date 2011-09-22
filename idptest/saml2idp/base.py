@@ -1,6 +1,13 @@
-from BeautifulSoup import BeautifulStoneSoup
-from exceptions import UserNotAuthorized
+# core python imports:
+import base64
 import logging
+import time
+import uuid
+# other library imports:
+from BeautifulSoup import BeautifulStoneSoup
+# local app imports:
+import codex
+from exceptions import UserNotAuthorized
 import saml2idp_settings
 import validation
 import xml_render
@@ -33,7 +40,7 @@ class processor(object):
     # Formatting note: These methods are alphabetized.
 
     def __init__(self):
-        self._logger = logging.get_logger(self.__class__.__name__)
+        self._logger = logging.getLogger(self.__class__.__name__)
 
     def _build_assertion(self):
         """
@@ -41,7 +48,7 @@ class processor(object):
         """
         self._determine_assertion_id()
         self._determine_audience()
-        self._determine_email()
+        self._determine_subject()
         self._determine_session_index()
 
         self._assertion_params = {
@@ -67,7 +74,7 @@ class processor(object):
         """
         self._determine_response_id()
         self._response_params = {
-            'ASSERTION': self._assertion,
+            'ASSERTION': self._assertion_xml,
             'ISSUE_INSTANT': get_time_string(),
             'RESPONSE_ID': self._response_id,
             'RESPONSE_SIGNATURE': '', # initially unsigned
@@ -80,7 +87,7 @@ class processor(object):
         Decodes _request_xml from _saml_request.
         """
         self._request_xml = base64.b64decode(self._saml_request)
-        self._logger.debug('Decoded XML: ' + self._request)
+        self._logger.debug('Decoded XML: ' + self._request_xml)
 
     def _determine_assertion_id(self):
         """
@@ -126,15 +133,15 @@ class processor(object):
 
     def _format_assertion(self):
         """
-        Formats _assertion_params as _assertion.
+        Formats _assertion_params as _assertion_xml.
         """
-        self._assertion_xml = xml_render.get_assertion_salesforce(self._assertion_params, signed=True)
+        raise NotImplemented()
 
     def _format_response(self):
         """
         Formats _response_params as _response_xml.
         """
-        self._response_xml = xml_render.get_response(self._response_params, signed=True)
+        self._response_xml = xml_render.get_response_xml(self._response_params, signed=True)
 
     def _get_django_response_params(self):
         """
@@ -161,14 +168,14 @@ class processor(object):
         params['PROVIDER_NAME'] = request.get('providername', '')
         self._request_params = params
 
-    def _reset(self):
+    def _reset(self, django_request):
         """
         Initialize (and reset) object properties, so we don't risk carrying
         over anything from the last authentication.
         """
         self._assertion_params = None
         self._assertion_xml = None
-        self._django_request = None
+        self._django_request = django_request
         self._relay_state = None
         self._request = None
         self._request_id = None
@@ -201,8 +208,7 @@ class processor(object):
         """
         Returns true if this processor can handle this request.
         """
-        self._reset()
-        self._django_request = dict(**request) #deepcopy and save for generate_request
+        self._reset(request)
         return False
 
     def generate_response(self):
