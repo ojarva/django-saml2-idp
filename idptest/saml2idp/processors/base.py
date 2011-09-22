@@ -1,5 +1,9 @@
+from BeautifulSoup import BeautifulStoneSoup
 from exceptions import UserNotAuthorized
 import logging
+import saml2idp_settings
+import validation
+import xml_render
 
 class Saml2IdpProcessor(object):
     """
@@ -134,9 +138,16 @@ class Saml2IdpProcessor(object):
 
     def _parse_request(self):
         """
-        Parses various parameters from _request into _request_params.
+        Parses various parameters from _request_xml into _request_params.
         """
-        pass
+        soup = BeautifulStoneSoup(self._request_xml)
+        request = soup.findAll()[0]
+        params = {}
+        params['ACS_URL'] = request['assertionconsumerserviceurl']
+        params['REQUEST_ID'] = request['id']
+        params['DESTINATION'] = request.get('destination', '')
+        params['PROVIDER_NAME'] = request.get('providername', '')
+        self._request_params = params
 
     def _reset(self):
         """
