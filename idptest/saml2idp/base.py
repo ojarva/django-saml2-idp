@@ -9,7 +9,6 @@ from BeautifulSoup import BeautifulStoneSoup
 import codex
 import exceptions
 import saml2idp_settings
-import validation
 import xml_render
 
 MINUTES = 60
