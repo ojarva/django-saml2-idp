@@ -56,4 +56,4 @@ class ProcessorRegistry(object):
             except exceptions.CannotHandleAssertion, e:
                 # Log these, but keep looking.
                 self._logger.debug('%s %s' % (proc, e))
-        raise Exception('None of the SAML2IDP_PROCESSOR_CLASSES could handle this request.')
+        raise exceptions.CannotHandleAssertion('None of the SAML2IDP_PROCESSOR_CLASSES could handle this request.')
