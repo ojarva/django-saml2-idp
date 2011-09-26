@@ -7,7 +7,23 @@ from django.test.client import Client
 
 
 class TestLoginView(TestCase):
-    pass
+    def test_empty_get(self):
+        """
+        GET request without SAMLResponse data should have failed.
+        """
+        self.assertRaises(KeyError, lambda : self.client.get('/idp/login/'))
+
+    def test_empty_post(self):
+        """
+        POST request without SAMLResponse data should have failed.
+        """
+        self.assertRaises(KeyError, lambda : self.client.post('/idp/login/'))
+
+    def test_get(self):
+        pass
+
+    def test_post(self):
+        pass
 
 
 class TestLoginProcessView(TestCase):
