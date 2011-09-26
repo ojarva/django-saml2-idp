@@ -1,9 +1,18 @@
 """
 Tests for basic view functionality only.
 """
+from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import Client
+
+
+SAML_REQUEST = 'this is not a real SAML Request'
+RELAY_STATE = 'abcdefghi0123456789'
+REQUEST_DATA = {
+    'SAMLRequest': SAML_REQUEST,
+    'RelayState': RELAY_STATE,
+}
 
 
 class TestLoginView(TestCase):
@@ -19,11 +28,31 @@ class TestLoginView(TestCase):
         """
         self.assertRaises(KeyError, lambda : self.client.post('/idp/login/'))
 
+    def _test_pre_redirect(self):
+        self.assertFalse(self.client.session.has_key('SAMLRequest'))
+        self.assertFalse(self.client.session.has_key('RelayState'))
+
+    def _test_redirect(self, response):
+        self.assertEquals(response.status_code, HttpResponseRedirect.status_code)
+        self.assertTrue(response['location'].endswith('/idp/login/process/'))
+        self.assertEqual(self.client.session['SAMLRequest'], SAML_REQUEST)
+        self.assertEqual(self.client.session['RelayState'], RELAY_STATE)
+
     def test_get(self):
-        pass
+        """
+        GET did not redirect to process URL.
+        """
+        self._test_pre_redirect()
+        response = self.client.get('/idp/login/', data=REQUEST_DATA)
+        self._test_redirect(response)
 
     def test_post(self):
-        pass
+        """
+        POST did not redirect to process URL.
+        """
+        self._test_pre_redirect()
+        response = self.client.post('/idp/login/', data=REQUEST_DATA)
+        self._test_redirect(response)
 
 
 class TestLoginProcessView(TestCase):
