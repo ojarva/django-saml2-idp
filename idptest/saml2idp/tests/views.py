@@ -14,4 +14,6 @@ class TestLoginProcessView(TestCase):
 
 
 class TestLogoutView(TestCase):
-    pass
+    def test_logout(self):
+        response = self.client.get('/idp/logout/')
+        self.assertContains(response, 'logged out', status_code=200)
