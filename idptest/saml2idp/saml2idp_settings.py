@@ -39,5 +39,6 @@ try:
     SAML2IDP_PROCESSOR_CLASSES = settings.SAML2IDP_PROCESSOR_CLASSES
 except:
     SAML2IDP_PROCESSOR_CLASSES = [
-        'saml2idp.salesforce.processor',
+        'saml2idp.salesforce.Processor',
+        'saml2idp.google_apps.Processor',
     ]

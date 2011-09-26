@@ -23,7 +23,7 @@ def get_time_string(delta=0):
     return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime(time.time() + delta))
 
 
-class processor(object):
+class Processor(object):
     """
     Base SAML 2.0 AuthnRequest to Response Processor.
     Sub-classes should provide Service Point-specific functionality.
