@@ -63,27 +63,43 @@ NOTE: Go ahead and setup a super user account when prompted.
     Enter the email address that Google is expecting. It should be
     what you entered when you setup your test account in step 1.
 
-8. Run the Django test server.
+8. Ensure that you have enabled the Google Apps processor. In settings.py:
 
-$ ./manage.py runserver
+    SAML2IDP_PROCESSOR_CLASSES = [
+        ...
+        'saml2idp.google_apps.Processor',
+        ...
+    ]
+
+9. Add YOURDOMAIN as a valid AssertionConsumerServiceURL. In settings.py:
+
+    SAML2IDP_VALID_ACS = [
+        ...
+        'https://www.google.com/a/YOURDOMAIN/acs',
+        ...
+    ]
+
+10. Run the Django test server.
+
+    $ ./manage.py runserver
 
 Login and logout using SAML 2.0
 -------------------------------
 At this point, I highly recommend starting the SAML Tracer plugin for Firefox:
 https://addons.mozilla.org/en-US/firefox/addon/saml-tracer/
 
-9. Open the GMAIL URL for your sample domain:
+11. Open the GMAIL URL for your sample domain:
 
 http://mail.google.com/a/YOURDOMAIN
 
 Google will redirect to your test IdP's login page.
 
-10. Login using your local IdP.
+12. Login using your local IdP.
 
 After logging in (using your superuser account), your IdP will redirect back
 to Google Mail.
 
-11. Logout as normal.
+13. Logout as normal.
 
 Google Mail will redirect to your local IdP's logout page.
 
