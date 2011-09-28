@@ -9,9 +9,9 @@ SalesForce Processors.
 
 Certificates
 ------------
-The certificate and private key files have been borrowed from the simpleSAMLphp
-project. This allows easier testing, using simpleSAMLphp itself as a reference
-implementation.
+The sample certificate and private key files have been borrowed from the
+simpleSAMLphp project. This allows easier testing, using simpleSAMLphp itself
+as a reference implementation.
 
 You can find these files at:
 
