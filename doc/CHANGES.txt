@@ -1,0 +1,3 @@
+0.1 - Tagged 0.1.
+
+0.11 - 2010-10-05 - Include templates in egg.
