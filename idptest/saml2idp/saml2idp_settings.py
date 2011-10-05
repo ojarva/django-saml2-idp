@@ -33,7 +33,10 @@ try:
     SAML2IDP_VALID_ACS = settings.SAML2IDP_VALID_ACS
 except:
     #NOTE: If this is empty, SAML2IDP will be effectively disabled.
-    SAML2IDP_VALID_ACS = []
+    SAML2IDP_VALID_ACS = [
+        'https://login.salesforce.com',
+        'https://www.google.com/a/example.com/acs', # necessary for testing Django <= 1.1
+    ]
 
 try:
     SAML2IDP_PROCESSOR_CLASSES = settings.SAML2IDP_PROCESSOR_CLASSES
