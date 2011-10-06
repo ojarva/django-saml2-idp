@@ -91,7 +91,7 @@ class TestSalesForceProcessor(TestCase):
     def tearDown(self):
         saml2idp_settings.SAML2IDP_VALID_ACS = self._old_acs # restore
 
-    def test_assertion_handled(self):
+    def test_authnrequest_handled(self):
         # Arrange/Act:
         response = self.client.get('/idp/login/', data=REQUEST_DATA, follow=False)
 
