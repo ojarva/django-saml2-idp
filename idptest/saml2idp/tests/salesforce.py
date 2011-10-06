@@ -85,6 +85,11 @@ class TestSalesForceProcessor(TestCase):
 
     def setUp(self):
         fred = User.objects.create_user('fred', email=FRED_EMAIL, password='secret')
+        self._old_acs = saml2idp_settings.SAML2IDP_VALID_ACS # save
+        saml2idp_settings.SAML2IDP_VALID_ACS = [ SALESFORCE_ACS ]
+
+    def tearDown(self):
+        saml2idp_settings.SAML2IDP_VALID_ACS = self._old_acs # restore
 
     def test_assertion_handled(self):
         # Arrange/Act:

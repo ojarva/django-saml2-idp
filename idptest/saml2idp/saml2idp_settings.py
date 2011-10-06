@@ -28,14 +28,16 @@ try:
 except:
     SAML2IDP_SIGNING = True # by default
 
-#TODO: Deprecate SAML2IDP_VALID_ACS in favor of SAML2IDP_VALID_ACS.
 try:
     SAML2IDP_VALID_ACS = settings.SAML2IDP_VALID_ACS
 except:
     #NOTE: If this is empty, SAML2IDP will be effectively disabled.
+    # For Google Apps, you need to add something like this for your domain:
+    #   'https://www.google.com/a/example.com/acs'
+    # For SalesForce, this generic login will work for developer accounts;
+    # you will likely need to update it with your production ACS URL.
     SAML2IDP_VALID_ACS = [
         'https://login.salesforce.com',
-        'https://www.google.com/a/example.com/acs', # necessary for testing Django <= 1.1
     ]
 
 try:
