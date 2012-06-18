@@ -1,0 +1,29 @@
+IdP-Initiated Deep Links
+========================
+Some Service Points require an IdP-initiated conversation. To achieve this,
+the IdP must have some way to link deeply to an SP resource.
+
+SAML2IDP_LINKS setting
+======================
+The SAML2IDP_LINKS dictionary maps a named resource to a URL pattern on the SP.
+
+For example:
+
+DEEP_LINKS = {
+    #named resource: URL pattern
+    'starwars': 'https://www.starwars.com/%s.php',
+}
+
+For example, this IdP link to the "vader" target:
+
+https://idp.example.com/init/starwars/vader/
+
+Will map to this URL on the SP:
+
+https://www.starwars.com/vader.php
+
+NOTE: These example URLs are totally bogus. Don't expect them to actually work!
+
+LIMITATIONS
+===========
+Both the named resource and the target must be alphanumeric only.

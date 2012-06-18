@@ -34,6 +34,19 @@ def login_begin(request, *args, **kwargs):
     request.session['RelayState'] = source['RelayState']
     return redirect('login_process')
 
+def login_init(request, resource, target):
+    """
+    Initiates an IdP-initiated link to a SP resource/target URL.
+    """
+    try:
+        pattern = saml2idp_settings.SAML2IDP_LINKS[resource]
+    except KeyError:
+        raise Exception('Resource not specified in SAML2IDP_LINKS setting: "%s"' % resource)
+    url = pattern % target
+    request.session['SAMLRequest'] = 'TODO' #TODO: Do we have to make up something?
+    request.session['RelayState'] = url
+    return redirect('login_process')
+
 @login_required
 @csrf_response_exempt
 def login_process(request):
