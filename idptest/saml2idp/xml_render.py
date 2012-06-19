@@ -15,6 +15,7 @@ def _get_attribute_statement(params):
     _get_subject().
     """
     #TODO: How do we pass attributes in?
+    #NOTE: SalesForce Customer Portals require two attributes: portal_id and organization_id.
     attributes = {
         #name: value
         'foo': 'bar'
@@ -23,12 +24,12 @@ def _get_attribute_statement(params):
         return ''
     # Build individual attribute list.
     template = string.Template(ATTRIBUTE)
-    attributes = []
-    for name, value in attributes:
+    attr_list = []
+    for name, value in attributes.items():
         subs = { 'ATTRIBUTE_NAME': name, 'ATTRIBUTE_VALUE': value }
         one = template.substitute(subs)
-        attributes.append(one)
-    params['ATTRIBUTES'] = ''.join(attributes)
+        attr_list.append(one)
+    params['ATTRIBUTES'] = ''.join(attr_list)
     # Build complete AttributeStatement.
     stmt_template = string.Template(ATTRIBUTE_STATEMENT)
     statement = stmt_template.substitute(params)
