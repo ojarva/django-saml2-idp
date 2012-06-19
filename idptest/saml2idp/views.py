@@ -16,6 +16,19 @@ import exceptions
 import registry
 import xml_signing
 
+
+def _generate_response(request, processor):
+    """
+    Generate a SAML response using processor.
+    """
+    try:
+        tv = processor.generate_response()
+    except exceptions.UserNotAuthorized:
+        return render_to_response('saml2idp/invalid_user.html')
+
+    return render_to_response('saml2idp/login.html', tv,
+                                context_instance=RequestContext(request))
+
 def xml_response(request, template, tv):
     return render_to_response(template, tv, mimetype="application/xml")
 
@@ -34,6 +47,7 @@ def login_begin(request, *args, **kwargs):
     request.session['RelayState'] = source['RelayState']
     return redirect('login_process')
 
+@login_required
 def login_init(request, resource, target):
     """
     Initiates an IdP-initiated link to a SP resource/target URL.
@@ -43,9 +57,19 @@ def login_init(request, resource, target):
     except KeyError:
         raise Exception('Resource not specified in SAML2IDP_LINKS setting: "%s"' % resource)
     url = pattern % target
-    request.session['SAMLRequest'] = 'TODO' #TODO: Do we have to make up something?
-    request.session['RelayState'] = url
-    return redirect('login_process')
+    #TODO: Dynamically determine the processor. How??
+    import salesforce
+    proc = salesforce.Processor()
+    #TODO: Make this into some sort of method?
+    proc._reset(request)
+    # We don't have any request parameters! These are made up! :O
+    #TODO: Figure these out, or specify in settings somehow.
+    proc._request_params = {
+        'ACS_URL': 'https://www.andersoninnovative.com/acs/',
+        'DESTINATION': url,
+        'PROVIDER_NAME': 'yagni?'
+    }
+    return _generate_response(request, proc)
 
 @login_required
 @csrf_response_exempt
@@ -57,15 +81,7 @@ def login_process(request):
     reg = registry.ProcessorRegistry()
     logging.debug("Request: %s" % request)
     proc = reg.find_processor(request)
-
-    # Just in case downstream code wants to filter by some user criteria:
-    try:
-        tv = proc.generate_response()
-    except exceptions.UserNotAuthorized:
-        return render_to_response('saml2idp/invalid_user.html')
-
-    return render_to_response('saml2idp/login.html', tv,
-                                context_instance=RequestContext(request))
+    return _generate_response(request, proc)
 
 @csrf_view_exempt
 def logout(request):
