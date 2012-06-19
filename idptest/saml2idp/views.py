@@ -69,6 +69,7 @@ def login_init(request, resource, target):
         'DESTINATION': url,
         'PROVIDER_NAME': 'yagni?'
     }
+    proc._relay_state = url
     return _generate_response(request, proc)
 
 @login_required
