@@ -10,6 +10,11 @@ NOTE #1: OK, encoding XML into python is not optimal.
 
 NOTE #2: I'm using string.Template, rather than Django Templates, to avoid
     the overhead of loading Django's template code. (KISS, baby.)
+
+NOTE #3: I'm now leaning towards using lxml's E factory to do some of this.
+    It's a dependency of BeautifulSoup, so it should be installed as a pre-req.
+    Look at the docs here: http://lxml.de/tutorial.html#the-e-factory
+    Compare how the other python/saml libraries are using lxml.
 """
 SIGNED_INFO = (
     '<ds:SignedInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">'
