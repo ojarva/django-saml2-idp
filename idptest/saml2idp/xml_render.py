@@ -14,12 +14,7 @@ def _get_attribute_statement(params):
     PRE-REQ: params['SUBJECT'] has already been created (usually by a call to
     _get_subject().
     """
-    #TODO: How do we pass attributes in?
-    #NOTE: SalesForce Customer Portals require two attributes: portal_id and organization_id.
-    attributes = {
-        #name: value
-        'foo': 'bar'
-    }
+    attributes = params.get('ATTRIBUTES', {})
     if len(attributes) < 1:
         params['ATTRIBUTE_STATEMENT'] = ''
         return
