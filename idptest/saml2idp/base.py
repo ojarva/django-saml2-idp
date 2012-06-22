@@ -28,11 +28,6 @@ class Processor(object):
     """
     Base SAML 2.0 AuthnRequest to Response Processor.
     Sub-classes should provide Service Point-specific functionality.
-
-    This class can be used directly by including this in settings.py:
-        SAML2IDP_PROCESSOR_CLASSES = [
-            'saml2idp.base.Processor'.
-        ]
     """
     # Design note: I've tried to make this easy to sub-class and override
     # just the bits you need to override. I've made use of object properties,
@@ -209,7 +204,7 @@ class Processor(object):
             if acs_url == sp_config['acs_url']:
                 self._sp_config = sp_config
                 return
-        msg = "ACS url '%s' not specified in SAML2IDP_VALID_ACS setting." % acs_url
+        msg = "Could not find ACS url '%s' in SAML2IDP_REMOTES setting." % acs_url
         raise ImproperlyConfigured(msg)
 
     def _validate_user(self):

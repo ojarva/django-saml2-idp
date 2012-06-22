@@ -21,7 +21,8 @@ def _get_attribute_statement(params):
         'foo': 'bar'
     }
     if len(attributes) < 1:
-        return ''
+        params['ATTRIBUTE_STATEMENT'] = ''
+        return
     # Build individual attribute list.
     template = string.Template(ATTRIBUTE)
     attr_list = []
@@ -56,7 +57,7 @@ def _get_subject(params):
     Modifies the params dict.
     """
     template = string.Template(SUBJECT)
-    params['SUBJECT'] = template.substitute(params)
+    params['SUBJECT_STATEMENT'] = template.substitute(params)
 
 def _get_assertion_xml(template, parameters, signed=False):
     # Reset signature.
