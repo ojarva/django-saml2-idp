@@ -250,10 +250,15 @@ class Processor(object):
         """
         self._reset(request)
         acs_url = sp_config['acs_url']
-        provider_name = 'YAGNI?'
+        # NOTE: The following request params are made up. Some are blank,
+        # because they comes over in the AuthnRequest, but we don't have an
+        # AuthnRequest in this case:
+        # - Destination: Should be this IdP's SSO endpoint URL. Not used in the response?
+        # - ProviderName: According to the spec, this is optional.
+        provider_name = ''
         self._request_params = {
             'ACS_URL': acs_url,
-            'DESTINATION': url,
-            'PROVIDER_NAME': provider_name,
+            'DESTINATION': '',
+            'PROVIDER_NAME': '',
         }
         self._relay_state = url
