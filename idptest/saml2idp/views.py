@@ -6,6 +6,7 @@ import uuid
 # Django/other library imports:
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
@@ -13,6 +14,7 @@ from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
 # saml2idp app imports:
 import saml2idp_settings
 import exceptions
+import metadata
 import registry
 import xml_signing
 
@@ -52,18 +54,18 @@ def login_init(request, resource, target):
     """
     Initiates an IdP-initiated link to a SP resource/target URL.
     """
+    sp_config = metadata.get_config_for_resource(resource)
+    proc_path = sp_config['processor']
+    proc = registry.get_processor(proc_path)
     try:
-        pattern = saml2idp_settings.SAML2IDP_LINKS[resource]
+        pattern = sp_config['links'][resource]
     except KeyError:
-        raise Exception('Resource not specified in SAML2IDP_LINKS setting: "%s"' % resource)
-    url = pattern % target
-    #TODO: Dynamically determine the processor. How??
-    import salesforce
-    proc = salesforce.Processor()
+        raise ImproperlyConfigured('Cannot find link resource in SAML2IDP_REMOTE setting: "%s"' % resource)
     #TODO: Make this into some sort of method?
     proc._reset(request)
     # We don't have any request parameters! These are made up! :O
     #TODO: Figure these out, or specify in settings somehow.
+    url = pattern % target
     proc._request_params = {
         'ACS_URL': 'https://www.andersoninnovative.com/acs/',
         'DESTINATION': url,
