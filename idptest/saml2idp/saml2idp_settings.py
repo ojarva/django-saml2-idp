@@ -7,12 +7,6 @@ except:
     SAML2IDP_AUTOSUBMIT = True
 
 try:
-    SAML2IDP_LINKS = settings.SAML2IDP_LINKS
-except:
-    # named-resource: expanded URL string including one "%" for substitution
-    SAML2IDP_LINKS = {}
-
-try:
     SAML2IDP_ISSUER = settings.SAML2IDP_ISSUER
 except:
     SAML2IDP_ISSUER = 'http://127.0.0.1:8000'

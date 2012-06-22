@@ -1,6 +1,37 @@
+"""
+Registers and loads Processor classes from settings.
+"""
+# Python imports
 import logging
+# Django imports
 from django.utils.importlib import import_module
+from django.core.exceptions import ImproperlyConfigured
+# Local imports
 import exceptions
+
+def get_processor(dottedpath):
+    """
+    Get an instance of the processor with dottedpath.
+
+    For example:
+    >>> x = get_processor('saml2idp.demo.Processor')
+    """
+    try:
+        dot = dottedpath.rindex('.')
+    except ValueError:
+        raise ImproperlyConfigured('%s isn\'t a processors module' % dottedpath)
+    sp_module, sp_classname = dottedpath[:dot], dottedpath[dot+1:]
+    try:
+        mod = import_module(sp_module)
+    except ImportError, e:
+        raise ImproperlyConfigured('Error importing processors %s: "%s"' % (sp_module, e))
+    try:
+        sp_class = getattr(mod, sp_classname)
+    except AttributeError:
+        raise ImproperlyConfigured('processors module "%s" does not define a "%s" class' % (sp_module, sp_classname))
+
+    instance = sp_class()
+    return instance
 
 class ProcessorRegistry(object):
     """
@@ -22,21 +53,7 @@ class ProcessorRegistry(object):
 
         processors = []
         for processors_path in SAML2IDP_PROCESSOR_CLASSES:
-            try:
-                dot = processors_path.rindex('.')
-            except ValueError:
-                raise exceptions.ImproperlyConfigured('%s isn\'t a processors module' % processors_path)
-            sp_module, sp_classname = processors_path[:dot], processors_path[dot+1:]
-            try:
-                mod = import_module(sp_module)
-            except ImportError, e:
-                raise exceptions.ImproperlyConfigured('Error importing processors %s: "%s"' % (sp_module, e))
-            try:
-                sp_class = getattr(mod, sp_classname)
-            except AttributeError:
-                raise exceptions.ImproperlyConfigured('processors module "%s" does not define a "%s" class' % (sp_module, sp_classname))
-
-            sp_instance = sp_class()
+            sp_instance = get_processor(processors_path)
             processors.append(sp_instance)
 
         # We only assign to this when initialization is complete as it is used
