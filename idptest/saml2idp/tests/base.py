@@ -14,7 +14,7 @@ from .. import saml2idp_metadata
 class TestBaseProcessor(TestCase):
     """
     Sub-classes must provide these class properties:
-    ACS = Valid AssertionConsumerServiceURL
+    SP_CONFIG = ServicePoint metadata settings to use.
     REQUEST_DATA = dictionary containing 'SAMLRequest' and 'RelayState' keys.
     """
     USERNAME = 'fred'
@@ -23,12 +23,10 @@ class TestBaseProcessor(TestCase):
 
     def setUp(self):
         fred = User.objects.create_user(self.USERNAME, email=self.EMAIL, password=self.PASSWORD)
-#XXX: The following has no easy translation to metadata. YAGNI?
-#        self._old_acs = saml2idp_settings.SAML2IDP_VALID_ACS # save
-#        saml2idp_settings.SAML2IDP_VALID_ACS = [ self.ACS ]
-#
-#    def tearDown(self):
-#        saml2idp_settings.SAML2IDP_VALID_ACS = self._old_acs # restore
+        saml2idp_metadata.SAML2IDP_REMOTES['foobar'] = self.SP_CONFIG
+
+    def tearDown(self):
+        del saml2idp_metadata.SAML2IDP_REMOTES['foobar']
 
     def test_authnrequest_handled(self):
         # Arrange/Act:
