@@ -100,9 +100,13 @@ INSTALLED_APPS = (
 )
 
 LOGIN_REDIRECT_URL = '/idp/sso/post/response/preview/'
-SAML2IDP_SIGNING = True
-SAML2IDP_PRIVATE_KEY_FILE = PROJECT_ROOT + '/keys/sample/sample-private-key.pem'
-SAML2IDP_CERTIFICATE_FILE = PROJECT_ROOT + '/keys/sample/sample-certificate.pem'
+
+# SAML2IDP metadata settings
+SAML2IDP_CONFIG = {
+    'signing': True,
+    'certificate_file': PROJECT_ROOT + '/keys/sample/sample-certificate.pem',
+    'private_key_file': PROJECT_ROOT + '/keys/sample/sample-private-key.pem',
+}
 
 # Setup logging.
 import logging

@@ -12,7 +12,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt, csrf_response_exempt
 # saml2idp app imports:
-import saml2idp_settings
+import saml2idp_metadata
 import exceptions
 import metadata
 import registry
@@ -73,9 +73,9 @@ def login_process(request):
     Processor-based login continuation.
     Presents a SAML 2.0 Assertion for POSTing back to the Service Point.
     """
-    reg = registry.ProcessorRegistry()
+    #reg = registry.ProcessorRegistry()
     logging.debug("Request: %s" % request)
-    proc = reg.find_processor(request)
+    proc = registry.find_processor(request)
     return _generate_response(request, proc)
 
 @csrf_view_exempt
@@ -94,10 +94,11 @@ def descriptor(request):
     """
     Replies with the XML Metadata IDSSODescriptor.
     """
-    entity_id = saml2idp_settings.SAML2IDP_ISSUER
+    idp_config = saml2idp_metadata.SAML2IDP_CONFIG
+    entity_id = config['issuer']
     slo_url = request.build_absolute_uri(reverse('logout'))
     sso_url = request.build_absolute_uri(reverse('login_begin'))
-    pubkey = xml_signing.load_cert_data(saml2idp_settings.SAML2IDP_CERTIFICATE_FILE)
+    pubkey = xml_signing.load_cert_data(config['certificate_file'])
     tv = {
         'entity_id': entity_id,
         'cert_public_key': pubkey,

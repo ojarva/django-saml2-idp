@@ -78,6 +78,7 @@ Will map to this URL on the SP:
 https://www.example.com/starwars/vader.php
 
 NOTE: Both the named resource and the target must be alphanumeric only.
+WARNING: Do not use the same named resource for multiple SPs!
 
 All Remote SP Settings
 ----------------------

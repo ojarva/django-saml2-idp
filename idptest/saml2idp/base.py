@@ -3,12 +3,13 @@ import base64
 import logging
 import time
 import uuid
-# other library imports:
+# Django and other library imports:
 from BeautifulSoup import BeautifulStoneSoup
+from django.core.exceptions import ImproperlyConfigured
 # local app imports:
 import codex
 import exceptions
-import saml2idp_settings
+import saml2idp_metadata
 import xml_render
 
 MINUTES = 60
@@ -139,7 +140,8 @@ class Processor(object):
         """
         Formats _response_params as _response_xml.
         """
-        self._response_xml = xml_render.get_response_xml(self._response_params, signed=saml2idp_settings.SAML2IDP_SIGNING)
+        signed=saml2idp_metadata.SAML2IDP_CONFIG['signed']
+        self._response_xml = xml_render.get_response_xml(self._response_params, signed=signed)
 
     def _get_django_response_params(self):
         """
@@ -149,7 +151,7 @@ class Processor(object):
             'acs_url': self._request_params['ACS_URL'],
             'saml_response': self._saml_response,
             'relay_state': self._relay_state,
-            'autosubmit': saml2idp_settings.SAML2IDP_AUTOSUBMIT,
+            'autosubmit': saml2idp_metadata.SAML2IDP_CONFIG['autosubmit'],
         }
         return tv
 
@@ -171,10 +173,12 @@ class Processor(object):
         params['PROVIDER_NAME'] = request.get('providername', '')
         self._request_params = params
 
-    def _reset(self, django_request):
+    def _reset(self, django_request, sp_config=None):
         """
         Initialize (and reset) object properties, so we don't risk carrying
         over anything from the last authentication.
+        If provided, use sp_config throughout; otherwise, it will be set in
+        _validate_request().
         """
         self._assertion_params = None
         self._assertion_xml = None
@@ -190,8 +194,9 @@ class Processor(object):
         self._subject = None
         self._subject_format = 'urn:oasis:names:tc:SAML:2.0:nameid-format:email'
         self._system_params = {
-            'ISSUER': saml2idp_settings.SAML2IDP_ISSUER,
+            'ISSUER': saml2idp_metadata.SAML2IDP_CONFIG['issuer'],
         }
+        self._sp_config = sp_config
 
     def _validate_request(self):
         """
@@ -200,8 +205,12 @@ class Processor(object):
         throw a CannotHandleAssertion Exception if the validation does not succeed.
         """
         acs_url = self._request_params['ACS_URL']
+        for name, sp_config in saml2idp_metadata.SAML2IDP_REMOTES.items():
+            if acs_url == sp_config['acs_url']:
+                self._sp_config = sp_config
+                return
         msg = "ACS url '%s' not specified in SAML2IDP_VALID_ACS setting." % acs_url
-        assert acs_url in saml2idp_settings.SAML2IDP_VALID_ACS, msg
+        raise ImproperlyConfigured(msg)
 
     def _validate_user(self):
         """
@@ -248,8 +257,8 @@ class Processor(object):
         Initialize this Processor to make an IdP-initiated call to the SP's
         deep-linked URL.
         """
-        self._reset(request)
-        acs_url = sp_config['acs_url']
+        self._reset(request, sp_config)
+        acs_url = self._sp_config['acs_url']
         # NOTE: The following request params are made up. Some are blank,
         # because they comes over in the AuthnRequest, but we don't have an
         # AuthnRequest in this case:
