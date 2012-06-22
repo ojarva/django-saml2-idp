@@ -242,3 +242,18 @@ class Processor(object):
 
         # Return proper template params.
         return self._get_django_response_params()
+
+    def init_deep_link(self, request, sp_config, url):
+        """
+        Initialize this Processor to make an IdP-initiated call to the SP's
+        deep-linked URL.
+        """
+        self._reset(request)
+        acs_url = sp_config['acs_url']
+        provider_name = 'YAGNI?'
+        self._request_params = {
+            'ACS_URL': acs_url,
+            'DESTINATION': url,
+            'PROVIDER_NAME': provider_name,
+        }
+        self._relay_state = url

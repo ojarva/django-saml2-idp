@@ -21,7 +21,8 @@ import xml_signing
 
 def _generate_response(request, processor):
     """
-    Generate a SAML response using processor.
+    Generate a SAML response using processor and return it in the proper Django
+    response.
     """
     try:
         tv = processor.generate_response()
@@ -61,17 +62,8 @@ def login_init(request, resource, target):
         pattern = sp_config['links'][resource]
     except KeyError:
         raise ImproperlyConfigured('Cannot find link resource in SAML2IDP_REMOTE setting: "%s"' % resource)
-    #TODO: Make this into some sort of method?
-    proc._reset(request)
-    # We don't have any request parameters! These are made up! :O
-    #TODO: Figure these out, or specify in settings somehow.
     url = pattern % target
-    proc._request_params = {
-        'ACS_URL': 'https://www.andersoninnovative.com/acs/',
-        'DESTINATION': url,
-        'PROVIDER_NAME': 'yagni?'
-    }
-    proc._relay_state = url
+    proc.init_deep_link(request, sp_config, url)
     return _generate_response(request, proc)
 
 @login_required
