@@ -27,7 +27,8 @@ def _generate_response(request, processor):
     try:
         tv = processor.generate_response()
     except exceptions.UserNotAuthorized:
-        return render_to_response('saml2idp/invalid_user.html')
+        return render_to_response('saml2idp/invalid_user.html',
+                                  context_instance=RequestContext(request))
 
     return render_to_response('saml2idp/login.html', tv,
                                 context_instance=RequestContext(request))
