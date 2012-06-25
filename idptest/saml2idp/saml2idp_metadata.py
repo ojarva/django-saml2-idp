@@ -26,11 +26,18 @@ demoSpConfig = {
         'deeplink': 'http://127.0.0.1:9000/sp/%s/',
     }
 }
+attrSpConfig = {
+    'acs_url': 'http://127.0.0.1:9000/sp/acs/',
+    'processor': 'saml2idp.demo.AttributeProcessor',
+    'links': {
+        'attr': 'http://127.0.0.1:9000/sp/%s/',
+    },
+}
 
 SAML2IDP_REMOTES = {
     # Group of SP CONFIGs.
     # friendlyname: SP config
-    # 'sample': sampleSpConfig,
+    'attr_demo': attrSpConfig,
     'demo': demoSpConfig,
     # 'salesforce': salesforceSpConfig,
 }
