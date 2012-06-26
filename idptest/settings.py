@@ -103,9 +103,32 @@ LOGIN_REDIRECT_URL = '/idp/sso/post/response/preview/'
 
 # SAML2IDP metadata settings
 SAML2IDP_CONFIG = {
+    'autosubmit': False,
+    'issuer': 'http://127.0.0.1:8000',
     'signing': True,
     'certificate_file': PROJECT_ROOT + '/keys/sample/sample-certificate.pem',
     'private_key_file': PROJECT_ROOT + '/keys/sample/sample-private-key.pem',
+}
+
+demoSpConfig = {
+    'acs_url': 'http://127.0.0.1:9000/sp/acs/',
+    'processor': 'saml2idp.demo.Processor',
+    'links': {
+        'deeplink': 'http://127.0.0.1:9000/sp/%s/',
+    }
+}
+attrSpConfig = {
+    'acs_url': 'http://127.0.0.1:9000/sp/acs/',
+    'processor': 'saml2idp.demo.AttributeProcessor',
+    'links': {
+        'attr': 'http://127.0.0.1:9000/sp/%s/',
+    },
+}
+SAML2IDP_REMOTES = {
+    # Group of SP CONFIGs.
+    # friendlyname: SP config
+    'attr_demo': attrSpConfig,
+    'demo': demoSpConfig,
 }
 
 # Setup logging.
