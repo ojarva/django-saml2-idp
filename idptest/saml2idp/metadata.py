@@ -21,7 +21,7 @@ def get_config_for_resource(resource_name):
     Return the SP configuration that handles a deep-link resource_name.
     """
     for friendlyname, config in SAML2IDP_REMOTES.items():
-        links = config.get('links')
+        links = config.get('links', {})
         for name, pattern in links.items():
             if name == resource_name:
                 return config
