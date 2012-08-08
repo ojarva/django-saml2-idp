@@ -51,7 +51,7 @@ def login_begin(request, *args, **kwargs):
     return redirect('login_process')
 
 @login_required
-def login_init(request, resource, **kwargs):
+def login_init(request, resource, target):
     """
     Initiates an IdP-initiated link to a SP resource/target URL.
     """
@@ -62,7 +62,24 @@ def login_init(request, resource, **kwargs):
         pattern = sp_config['links'][resource]
     except KeyError:
         raise ImproperlyConfigured('Cannot find link resource in SAML2IDP_REMOTE setting: "%s"' % resource)
-    url = pattern % kwargs
+    url = pattern % target
+    proc.init_deep_link(request, sp_config, url)
+    return _generate_response(request, proc)
+
+@login_required
+def login_init_new(request, resource, **kwargs):
+    """
+    Initiates an IdP-initiated link to a SP resource/target URL.
+    """
+    sp_config = metadata.get_config_for_resource(resource)
+    proc_path = sp_config['processor']
+    proc = registry.get_processor(proc_path)
+    try:
+        whitelist = sp_config['links'][resource]
+    except KeyError:
+        raise ImproperlyConfigured('Cannot find link resource in SAML2IDP_REMOTE setting: "%s"' % resource)
+    #TODO: Validate that target matches a whitelist item.
+    url = pattern % target
     proc.init_deep_link(request, sp_config, url)
     return _generate_response(request, proc)
 

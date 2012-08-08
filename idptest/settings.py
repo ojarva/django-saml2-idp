@@ -114,9 +114,14 @@ demoSpConfig = {
     'acs_url': 'http://127.0.0.1:9000/sp/acs/',
     'processor': 'saml2idp.demo.Processor',
     'links': {
-        'deeplink': 'http://127.0.0.1:9000/sp/%(target)s/',
-        'deeplink2': 'http://127.0.0.1:9000/%(target)s/%(page)s/',
-    }
+        #NOTE: This should still work, due to the original URL mapping in urls.py:
+        'deeplink': 'http://127.0.0.1:9000/sp/%s/',
+    #TODO: Make these alternative form of it work; see comment in urls.py.
+        # This is equivalent to the above, but it uses the 'new' URL mappings:
+    #    'deeplink/(?P<target>\w+)/$': 'http://127.0.0.1:9000/sp/%(target)s/',
+        # This is new, and won't work with old code:
+    #    'deeplink/(?P<target>\w+)/(?P<page>\w+)/$': 'http://127.0.0.1:9000/%(target)s/%(page)s.jsp'),
+    },
 }
 attrSpConfig = {
     'acs_url': 'http://127.0.0.1:9000/sp/acs/',
