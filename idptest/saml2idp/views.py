@@ -51,7 +51,7 @@ def login_begin(request, *args, **kwargs):
     return redirect('login_process')
 
 @login_required
-def login_init(request, resource, target):
+def login_init(request, resource, **kwargs):
     """
     Initiates an IdP-initiated link to a SP resource/target URL.
     """
@@ -62,7 +62,7 @@ def login_init(request, resource, target):
         pattern = sp_config['links'][resource]
     except KeyError:
         raise ImproperlyConfigured('Cannot find link resource in SAML2IDP_REMOTE setting: "%s"' % resource)
-    url = pattern % target
+    url = pattern % kwargs
     proc.init_deep_link(request, sp_config, url)
     return _generate_response(request, proc)
 
@@ -81,7 +81,7 @@ def login_process(request):
 @csrf_view_exempt
 def logout(request):
     """
-    Allows a non-SAML 2.0 URL to log out the user and 
+    Allows a non-SAML 2.0 URL to log out the user and
     returns a standard logged-out page. (SalesForce and others use this method,
     though it's technically not SAML 2.0).
     """

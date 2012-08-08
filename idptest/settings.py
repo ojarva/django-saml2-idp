@@ -114,7 +114,8 @@ demoSpConfig = {
     'acs_url': 'http://127.0.0.1:9000/sp/acs/',
     'processor': 'saml2idp.demo.Processor',
     'links': {
-        'deeplink': 'http://127.0.0.1:9000/sp/%s/',
+        'deeplink': 'http://127.0.0.1:9000/sp/%(target)s/',
+        'deeplink2': 'http://127.0.0.1:9000/%(target)s/%(page)s/',
     }
 }
 attrSpConfig = {
