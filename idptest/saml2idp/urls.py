@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 from views import descriptor, login_begin, login_init, login_process, logout
-from django.conf import settings
+from metadata import get_deeplink_resources
 
 def deeplink_url_patterns(url_base_pattern=r'^init/%s/$'):
     """
@@ -9,16 +9,7 @@ def deeplink_url_patterns(url_base_pattern=r'^init/%s/$'):
     - url_base_pattern - Specify this if you need non-standard deeplink URLs.
         NOTE: This will probably closely match the 'login_init' URL.
     """
-    resources = []
-    for key, sp_config in settings.SAML2IDP_REMOTES.items():
-        for resource, pattern in sp_config.get('links', {}).items():
-            if '/' not in resource:
-                # It's a simple deeplink, which is handled by 'login_init' URL.
-                continue
-            resources.append(resource)
-
-    resources.sort()
-    resources.reverse()
+    resources = get_deeplink_resources()
     new_patterns = []
     for resource in resources:
         new_patterns += patterns('',

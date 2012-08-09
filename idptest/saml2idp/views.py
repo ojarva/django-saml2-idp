@@ -59,7 +59,8 @@ def login_init(request, resource, **kwargs):
     proc_path = sp_config['processor']
     proc = registry.get_processor(proc_path)
     try:
-        pattern = sp_config['links'][resource]
+        linkdict = dict(metadata.get_links(sp_config))
+        pattern = linkdict[resource]
     except KeyError:
         raise ImproperlyConfigured('Cannot find link resource in SAML2IDP_REMOTE setting: "%s"' % resource)
     is_simple_link = ('/' not in resource)
