@@ -34,7 +34,7 @@ DATABASE_NAME = DATABASES['default']['NAME']
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Europe/Helsinki'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -79,6 +79,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'idptest.urls'
@@ -106,44 +107,16 @@ SAML2IDP_CONFIG = {
     'autosubmit': False,
     'issuer': 'http://127.0.0.1:8000',
     'signing': True,
-    'certificate_file': PROJECT_ROOT + '/keys/sample/sample-certificate.pem',
-    'private_key_file': PROJECT_ROOT + '/keys/sample/sample-private-key.pem',
-}
-
-demoSpConfig = {
-    'acs_url': 'http://127.0.0.1:9000/sp/acs/',
-    'processor': 'saml2idp.demo.Processor',
-    'links': [ # a list of (resource, pattern) tuples, or a {resource: pattern} dict
-        #NOTE: This should still work, due to the "simple" 'login_init' URL in urls.py:
-        #TEST BY BROWSING TO: http://127.0.0.1:8000/sp/test/
-        ('deeplink', 'http://127.0.0.1:9000/sp/%s/'),
-        # The following are "new" deeplink mappings that let you specify more than one capture group:
-        # This is equivalent to the above, using the 'new' deeplink mapping:
-        #TEST BY BROWSING TO: http://127.0.0.1:8000/sp/test/
-        (r'deeplink/(?P<target>\w+)', 'http://127.0.0.1:9000/sp/%(target)s/'),
-        # Using two capture groups:
-        #TEST BY BROWSING TO: http://127.0.0.1:8000/sp/test/
-        (r'deeplink/(?P<target>\w+)/(?P<page>\w+)', 'http://127.0.0.1:9000/%(target)s/%(page)s/'),
-        # Deeplink to a resource that requires query parameters:
-        #NOTE: In the pattern, always use %(variable)s, because the captured
-        # parameters will always be in unicode.
-        #TEST BY BROWSING TO: http://127.0.0.1:8000/sp/test/123/
-        (r'deeplink/(?P<target>\w+)/(?P<page>\w+)/(?P<param>\d+)',
-            'http://127.0.0.1:9000/%(target)s/%(page)s/?param=%(param)s'),
-    ],
-}
-attrSpConfig = {
-    'acs_url': 'http://127.0.0.1:9000/sp/acs/',
-    'processor': 'saml2idp.demo.AttributeProcessor',
-    'links': {
-        'attr': 'http://127.0.0.1:9000/sp/%s/',
-    },
+    'certificate_file': PROJECT_ROOT + '/keys/certificate.pem',
+    'private_key_file': PROJECT_ROOT + '/keys/private-key.pem'
 }
 SAML2IDP_REMOTES = {
     # Group of SP CONFIGs.
     # friendlyname: SP config
-    'attr_demo': attrSpConfig,
-    'demo': demoSpConfig,
+    'google_apps': {
+        'acs_url': 'https://www.google.com/a/futurice.com/acs',
+        'processor': 'saml2idp.google_apps.Processor',
+    }
 }
 
 # Setup logging.

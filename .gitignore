@@ -1,0 +1,5 @@
+syntax: glob
+*.pyc
+idptest/keys/*
+idptest/saml2idp.log
+idptest/idptest.sqlite
